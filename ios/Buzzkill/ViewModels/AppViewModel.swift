@@ -59,7 +59,10 @@ final class AppViewModel: ObservableObject {
     func openSystemSettings() {
         let destinations = [
             "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#GRAYSCALE",
-            "App-Prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR",
+            "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT",
+            "settings-navigation://com.apple.Settings.Accessibility",
+            "App-Prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT",
+            "App-Prefs:root=ACCESSIBILITY",
             "App-Prefs:"
         ]
         openFirstAvailableSettingsDestination(destinations)

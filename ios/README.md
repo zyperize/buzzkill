@@ -10,7 +10,7 @@ Buzzkill only guides that setup. It does not block apps, impose limits, apply sh
 
 Setup progress is stored locally. **Start over** clears Buzzkill's local checklist but does not delete shortcuts or automations from Apple's apps.
 
-Onboarding first attempts the current iOS 26 Color Filters Settings route, then a legacy Accessibility route, and finally top-level Settings. Apple provides no public deep link to the Color Filters pane, so the manual taps remain visible as a fallback. The Personal Automation step includes privacy-safe screenshots captured from iOS Simulator and detailed instructions for the exact Shortcuts controls.
+Onboarding uses a nearest-page-first fallback ladder: Color Filters, Display & Text Size, Accessibility, then top-level Settings. Current iOS navigation routes are attempted before legacy routes. Apple provides no public deep link to the Color Filters pane, so the manual taps remain visible as a fallback. The Personal Automation step includes privacy-safe screenshots captured from iOS Simulator and detailed instructions for the exact Shortcuts controls.
 
 ## Code boundary
 
