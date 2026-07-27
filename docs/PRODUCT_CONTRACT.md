@@ -32,3 +32,5 @@ Do not make one platform’s constraints or product copy define the other platfo
 ## Explicit iOS setup UX decision
 
 The owner explicitly chose a hand-held setup instead of a wall of navigation text. Buzzkill installs signed On/Off shortcuts so users never build the Color Filters actions themselves. Setup progress persists locally and can be reset from the main screen. Public iOS APIs cannot open the Color Filters pane, create a Personal Automation, select apps, or force the Automations tab, so the guide must clearly coach those remaining system-owned steps.
+
+The Grayscale step provides an **Open iPhone Settings** button and then shows the three remaining taps: Accessibility → Display & Text Size → Color Filters. The button intentionally does not claim to open Color Filters directly. The automation step uses current, privacy-safe screenshots captured from iOS Simulator and keeps the relevant action button visible while the instructions scroll.

@@ -1,10 +1,10 @@
 # Buzzkill — App Store release readiness
 
-_Checked July 26, 2026._
+_Checked July 27, 2026._
 
 ## Complete in the project
 
-- [ ] Re-run the iOS Simulator build and launch after the grayscale-automation update. The local simulator service is currently unavailable in this workspace.
+- [x] Re-run the iOS Simulator build and launch after the grayscale-automation update.
 - [x] Bundle identifier is `com.buzzkill.app`.
 - [x] Version is `0.1.0` (`1`).
 - [x] Privacy manifest is bundled. It declares local-only `UserDefaults` storage with Apple’s `CA92.1` reason.
@@ -16,7 +16,7 @@ _Checked July 26, 2026._
 - [ ] In **Xcode → Buzzkill target → Signing & Capabilities**, select the Apple Developer team for the Apple ID you added. Xcode then creates or downloads the matching provisioning profile.
 - [ ] In the Apple Developer account, register `com.buzzkill.app` if it does not already exist.
 - [ ] Install both bundled shortcuts on a physical iPhone and validate the opened/closed automations.
-- [x] Do not use private Settings deep links. iOS only permits an app to deep-link to its own Settings page, not to the system Color Filters pane.
+- [ ] Before App Store submission, review the onboarding's undocumented `App-Prefs:` link. It currently opens the top-level Settings app for a shorter setup flow, but Apple provides no public API for this destination and may reject private URL schemes. The UI must never claim that it opens Color Filters directly.
 - [ ] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (or use Xcode Organizer). No local App Store Connect credentials are configured for Buzzkill yet.
 - [ ] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
 - [ ] Publish `docs/PRIVACY.md` at a public HTTPS URL, replace its Contact placeholder with a real support email or support page, and enter that URL in App Store Connect. Also enter a Support URL.

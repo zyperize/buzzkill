@@ -26,6 +26,7 @@ struct ContentView: View {
                     openedShortcutInstallers: viewModel.openedShortcutInstallers,
                     shortcutTestPhase: viewModel.shortcutTestPhase,
                     testShortcut: viewModel.testShortcut,
+                    openSettings: viewModel.openSystemSettings,
                     openShortcuts: viewModel.openAutomationCreator,
                     finish: {
                         viewModel.didFinishAutomation = true
@@ -88,10 +89,10 @@ struct ContentView: View {
             } label: {
                 Label(viewModel.didFinishAutomation ? "Review setup" : "Check setup", systemImage: "checklist")
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color(uiColor: .systemBackground))
             }
             .buttonStyle(.borderedProminent)
-            .tint(.white)
+            .tint(.primary)
             if viewModel.didVerifyShortcuts || viewModel.didFinishAutomation {
                 Button("Start over") {
                     viewModel.resetSetupProgress()
@@ -117,6 +118,7 @@ private struct AutomationGuide: View {
     let openedShortcutInstallers: Set<BundledShortcut>
     let shortcutTestPhase: ShortcutTestPhase
     let testShortcut: (BundledShortcut) -> Void
+    let openSettings: () -> Void
     let openShortcuts: () -> Void
     let finish: () -> Void
     @Environment(\.dismiss) private var dismiss
@@ -126,15 +128,8 @@ private struct AutomationGuide: View {
         NavigationStack {
             VStack(spacing: 18) {
                 TabView(selection: $page) {
-                    OnboardingPage(
-                        step: 1,
-                        title: "Pick Grayscale",
-                        detail: "In Settings, go to Accessibility → Display & Text Size → Color Filters. Choose Grayscale, then turn Color Filters back off. iPhone does not allow an app to open this exact page directly.",
-                        primaryTitle: "I picked Grayscale",
-                        primaryIcon: "circle.lefthalf.filled",
-                        primaryAction: { page = 1 },
-                        showContinue: false,
-                        continueTitle: "I picked Grayscale",
+                    GrayscaleSetupPage(
+                        openSettings: openSettings,
                         continueAction: { page = 1 }
                     )
                     .tag(0)
@@ -150,15 +145,8 @@ private struct AutomationGuide: View {
                         continueAction: { page = 3 }
                     )
                     .tag(2)
-                    OnboardingPage(
-                        step: 4,
-                        title: "When an app opens",
-                        detail: "In Shortcuts, tap Automation → + → App. Pick your apps, choose Is Opened and Run Immediately, then select the installed Buzzkill On shortcut.",
-                        primaryTitle: "Open Shortcuts",
-                        primaryIcon: "arrow.up.forward.app",
-                        primaryAction: openShortcuts,
-                        showContinue: true,
-                        continueTitle: "I made the open rule",
+                    OpenAutomationPage(
+                        openShortcuts: openShortcuts,
                         continueAction: { page = 4 }
                     )
                     .tag(3)
@@ -203,6 +191,110 @@ private struct AutomationGuide: View {
     }
 }
 
+private struct GrayscaleSetupPage: View {
+    let openSettings: () -> Void
+    let continueAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    StepHeader(step: 1)
+                    Image(systemName: "circle.lefthalf.filled")
+                        .font(.system(size: 44, weight: .medium))
+                    Text("Pick Grayscale")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text("Buzzkill can open iPhone Settings for you. From there, make these three taps:")
+                        .foregroundStyle(.secondary)
+                    SetupInstruction(number: 1, text: "Tap Accessibility")
+                    SetupInstruction(number: 2, text: "Tap Display & Text Size")
+                    SetupInstruction(number: 3, text: "Tap Color Filters")
+                    Text("Choose Grayscale, then turn Color Filters back off. Buzzkill On will turn it on only when your selected apps open.")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(28)
+            }
+            VStack(spacing: 12) {
+                GuideButton(
+                    title: "Open iPhone Settings",
+                    icon: "gearshape.fill",
+                    action: openSettings
+                )
+                Button("I picked Grayscale", action: continueAction)
+                    .buttonStyle(.bordered)
+                    .tint(.primary)
+            }
+            .padding(.horizontal, 28)
+            .padding(.bottom, 16)
+        }
+    }
+}
+
+private struct OpenAutomationPage: View {
+    let openShortcuts: () -> Void
+    let continueAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    StepHeader(step: 4)
+                    Image(systemName: "app.badge.checkmark")
+                        .font(.system(size: 44, weight: .medium))
+                    Text("When an app opens")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text("Make the rule that turns grayscale on:")
+                        .foregroundStyle(.secondary)
+
+                    SetupInstruction(
+                        number: 1,
+                        text: "In Shortcuts, tap Automation at the bottom."
+                    )
+                    SetupScreenshot(
+                        imageName: "ShortcutsAutomation",
+                        caption: "If this is your first rule, tap New Automation. Otherwise, tap +."
+                    )
+                    SetupInstruction(
+                        number: 2,
+                        text: "Tap New Automation, search for App, then tap App."
+                    )
+                    SetupInstruction(
+                        number: 3,
+                        text: "Tap Choose and select every app Buzzkill should make grayscale."
+                    )
+                    SetupInstruction(
+                        number: 4,
+                        text: "Keep Is Opened selected and choose Run Immediately."
+                    )
+                    SetupScreenshot(
+                        imageName: "ShortcutsAppTrigger",
+                        caption: "For this first rule: Is Opened + Run Immediately."
+                    )
+                    SetupInstruction(
+                        number: 5,
+                        text: "Tap Next, then choose the installed Buzzkill On shortcut."
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(28)
+            }
+            VStack(spacing: 12) {
+                GuideButton(
+                    title: "Open Shortcuts",
+                    icon: "arrow.up.forward.app",
+                    action: openShortcuts
+                )
+                Button("I made the open rule", action: continueAction)
+                    .buttonStyle(.bordered)
+                    .tint(.primary)
+            }
+            .padding(.horizontal, 28)
+            .padding(.bottom, 16)
+        }
+    }
+}
+
 private struct OnboardingPage: View {
     let step: Int
     let title: String
@@ -218,10 +310,7 @@ private struct OnboardingPage: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Text("STEP \(step) OF 5")
-                        .font(.caption.weight(.bold))
-                        .tracking(1)
-                        .foregroundStyle(.secondary)
+                    StepHeader(step: step)
                     Image(systemName: primaryIcon)
                         .font(.system(size: 44, weight: .medium))
                     Text(title)
@@ -234,13 +323,11 @@ private struct OnboardingPage: View {
                 .padding(28)
             }
             VStack(spacing: 12) {
-                Button(action: primaryAction) {
-                    Label(primaryTitle, systemImage: primaryIcon)
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(.black)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.white)
+                GuideButton(
+                    title: primaryTitle,
+                    icon: primaryIcon,
+                    action: primaryAction
+                )
                 if showContinue {
                     Button(continueTitle, action: continueAction)
                         .buttonStyle(.bordered)
@@ -250,6 +337,76 @@ private struct OnboardingPage: View {
             .padding(.horizontal, 28)
             .padding(.bottom, 16)
         }
+    }
+}
+
+private struct StepHeader: View {
+    let step: Int
+
+    var body: some View {
+        Text("STEP \(step) OF 5")
+            .font(.caption.weight(.bold))
+            .tracking(1)
+            .foregroundStyle(.secondary)
+    }
+}
+
+private struct SetupInstruction: View {
+    let number: Int
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text("\(number)")
+                .font(.subheadline.bold())
+                .frame(width: 28, height: 28)
+                .background(Color.primary)
+                .foregroundStyle(Color(uiColor: .systemBackground))
+                .clipShape(Circle())
+                .accessibilityHidden(true)
+            Text(text)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Step \(number). \(text)")
+    }
+}
+
+private struct SetupScreenshot: View {
+    let imageName: String
+    let caption: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.primary.opacity(0.12))
+                }
+                .accessibilityHidden(true)
+            Text(caption)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct GuideButton: View {
+    let title: String
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .frame(maxWidth: .infinity)
+                .foregroundStyle(Color(uiColor: .systemBackground))
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.primary)
     }
 }
 
@@ -299,8 +456,8 @@ private struct InstallShortcutsPage: View {
             Button("Both are installed", action: continueAction)
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.borderedProminent)
-                .tint(.white)
-                .foregroundStyle(.black)
+                .tint(.primary)
+                .foregroundStyle(Color(uiColor: .systemBackground))
                 .disabled(openedInstallers.count < BundledShortcut.allCases.count)
                 .padding(.horizontal, 28)
                 .padding(.bottom, 16)
@@ -420,10 +577,10 @@ private struct TestShortcutsPage: View {
         Button(action: action) {
             Label(title, systemImage: icon)
                 .frame(maxWidth: .infinity)
-                .foregroundStyle(.black)
+                .foregroundStyle(Color(uiColor: .systemBackground))
         }
         .buttonStyle(.borderedProminent)
-        .tint(.white)
+        .tint(.primary)
     }
 
     private func failureMessage(_ failure: ShortcutTestFailure) -> String {

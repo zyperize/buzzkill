@@ -56,6 +56,16 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func openSystemSettings() {
+        guard let url = URL(string: "App-Prefs:") else { return }
+        UIApplication.shared.open(url) { [weak self] opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                self?.statusMessage = "Open the Settings app manually to choose Grayscale."
+            }
+        }
+    }
+
     func installShortcut(_ shortcut: BundledShortcut) {
         guard let fileURL = bundledShortcutURL(for: shortcut) else {
             statusMessage = "Buzzkill couldn’t find the \(shortcut.displayName) installer."
