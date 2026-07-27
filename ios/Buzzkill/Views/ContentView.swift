@@ -204,7 +204,7 @@ private struct GrayscaleSetupPage: View {
                         .font(.system(size: 44, weight: .medium))
                     Text("Pick Grayscale")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    Text("Buzzkill can open iPhone Settings for you. From there, make these three taps:")
+                    Text("Tap the button below to jump to Color Filters. If your iOS version only opens Settings, make these three taps:")
                         .foregroundStyle(.secondary)
                     SetupInstruction(number: 1, text: "Tap Accessibility")
                     SetupInstruction(number: 2, text: "Tap Display & Text Size")
@@ -217,8 +217,8 @@ private struct GrayscaleSetupPage: View {
             }
             VStack(spacing: 12) {
                 GuideButton(
-                    title: "Open iPhone Settings",
-                    icon: "gearshape.fill",
+                    title: "Open Color Filters",
+                    icon: "circle.lefthalf.filled",
                     action: openSettings
                 )
                 Button("I picked Grayscale", action: continueAction)

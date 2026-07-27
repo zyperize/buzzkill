@@ -57,13 +57,12 @@ final class AppViewModel: ObservableObject {
     }
 
     func openSystemSettings() {
-        guard let url = URL(string: "App-Prefs:") else { return }
-        UIApplication.shared.open(url) { [weak self] opened in
-            guard !opened else { return }
-            Task { @MainActor in
-                self?.statusMessage = "Open the Settings app manually to choose Grayscale."
-            }
-        }
+        let destinations = [
+            "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#GRAYSCALE",
+            "App-Prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR",
+            "App-Prefs:"
+        ]
+        openFirstAvailableSettingsDestination(destinations)
     }
 
     func installShortcut(_ shortcut: BundledShortcut) {
@@ -80,6 +79,27 @@ final class AppViewModel: ObservableObject {
                 } else {
                     self.statusMessage = "Couldn’t open \(shortcut.displayName). Try reinstalling Buzzkill."
                 }
+            }
+        }
+    }
+
+    private func openFirstAvailableSettingsDestination(
+        _ destinations: [String],
+        index: Int = 0
+    ) {
+        guard destinations.indices.contains(index),
+              let url = URL(string: destinations[index]) else {
+            statusMessage = "Open Settings → Accessibility → Display & Text Size → Color Filters."
+            return
+        }
+
+        UIApplication.shared.open(url) { [weak self] opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                self?.openFirstAvailableSettingsDestination(
+                    destinations,
+                    index: index + 1
+                )
             }
         }
     }
