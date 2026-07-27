@@ -52,8 +52,10 @@ In Xcode:
 
 The app guides the user through the supported system setup. On each physical
 iPhone, first configure Color Filters to Grayscale, then install the bundled
-**Buzzkill On** and **Buzzkill Off** shortcuts. Create two app automations:
-opened runs Buzzkill On and closed runs Buzzkill Off.
+**Buzzkill On** and **Buzzkill Off** shortcuts. The guide tests both shortcuts
+and verifies that grayscale turns on and color returns before continuing.
+Create two app automations: opened runs Buzzkill On and closed runs Buzzkill
+Off.
 
 ### 3. Android
 

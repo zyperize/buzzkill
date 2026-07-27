@@ -6,6 +6,20 @@ final class AppViewModel: ObservableObject {
     @Published var didFinishAutomation = false {
         didSet { defaults.set(didFinishAutomation, forKey: Keys.didFinishAutomation) }
     }
+    @Published private(set) var openedShortcutInstallers: Set<BundledShortcut> {
+        didSet {
+            for shortcut in BundledShortcut.allCases {
+                defaults.set(
+                    openedShortcutInstallers.contains(shortcut),
+                    forKey: Keys.openedInstaller(for: shortcut)
+                )
+            }
+        }
+    }
+    @Published private(set) var didVerifyShortcuts: Bool {
+        didSet { defaults.set(didVerifyShortcuts, forKey: Keys.didVerifyShortcuts) }
+    }
+    @Published private(set) var shortcutTestPhase: ShortcutTestPhase
     @Published private(set) var isGrayscaleEnabled = false
     @Published private(set) var statusMessage = "Checking your display setting…"
 
@@ -14,6 +28,14 @@ final class AppViewModel: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         didFinishAutomation = defaults.bool(forKey: Keys.didFinishAutomation)
+        openedShortcutInstallers = Set(
+            BundledShortcut.allCases.filter {
+                defaults.bool(forKey: Keys.openedInstaller(for: $0))
+            }
+        )
+        let shortcutsVerified = defaults.bool(forKey: Keys.didVerifyShortcuts)
+        didVerifyShortcuts = shortcutsVerified
+        shortcutTestPhase = shortcutsVerified ? .verified : .ready
         refreshGrayscaleStatus()
     }
 
@@ -41,11 +63,58 @@ final class AppViewModel: ObservableObject {
         }
 
         UIApplication.shared.open(fileURL) { [weak self] opened in
-            guard !opened else { return }
             Task { @MainActor in
-                self?.statusMessage = "Couldn’t open \(shortcut.displayName). Try reinstalling Buzzkill."
+                guard let self else { return }
+                if opened {
+                    self.openedShortcutInstallers.insert(shortcut)
+                } else {
+                    self.statusMessage = "Couldn’t open \(shortcut.displayName). Try reinstalling Buzzkill."
+                }
             }
         }
+    }
+
+    func testShortcut(_ shortcut: BundledShortcut) {
+        guard let url = shortcutCallbackURL(for: shortcut) else {
+            shortcutTestPhase = .failed(.couldNotOpen(shortcut))
+            return
+        }
+
+        shortcutTestPhase = .running(shortcut)
+        UIApplication.shared.open(url) { [weak self] opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                self?.shortcutTestPhase = .failed(.couldNotOpen(shortcut))
+            }
+        }
+    }
+
+    func handleShortcutCallback(_ url: URL) {
+        guard url.scheme == "buzzkill",
+              url.host == "shortcut",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let mode = components.queryItems?.first(where: { $0.name == "mode" })?.value,
+              let shortcut = BundledShortcut(callbackValue: mode)
+        else { return }
+
+        switch url.path {
+        case "/success":
+            verifyShortcutResult(shortcut)
+        case "/cancel":
+            shortcutTestPhase = .failed(.cancelled(shortcut))
+        case "/error":
+            shortcutTestPhase = .failed(.couldNotRun(shortcut))
+        default:
+            break
+        }
+    }
+
+    func resetSetupProgress() {
+        didFinishAutomation = false
+        openedShortcutInstallers = []
+        didVerifyShortcuts = false
+        shortcutTestPhase = .ready
+        refreshGrayscaleStatus()
     }
 
     private func bundledShortcutURL(for shortcut: BundledShortcut) -> URL? {
@@ -59,10 +128,54 @@ final class AppViewModel: ObservableObject {
         )
     }
 
+    private func shortcutCallbackURL(for shortcut: BundledShortcut) -> URL? {
+        var components = URLComponents()
+        components.scheme = "shortcuts"
+        components.host = "x-callback-url"
+        components.path = "/run-shortcut"
+        components.queryItems = [
+            URLQueryItem(name: "name", value: shortcut.displayName),
+            URLQueryItem(
+                name: "x-success",
+                value: "buzzkill://shortcut/success?mode=\(shortcut.callbackValue)"
+            ),
+            URLQueryItem(
+                name: "x-cancel",
+                value: "buzzkill://shortcut/cancel?mode=\(shortcut.callbackValue)"
+            ),
+            URLQueryItem(
+                name: "x-error",
+                value: "buzzkill://shortcut/error?mode=\(shortcut.callbackValue)"
+            )
+        ]
+        return components.url
+    }
+
+    private func verifyShortcutResult(_ shortcut: BundledShortcut) {
+        refreshGrayscaleStatus()
+
+        switch shortcut {
+        case .grayscaleOn where isGrayscaleEnabled:
+            shortcutTestPhase = .onVerified
+        case .grayscaleOn:
+            shortcutTestPhase = .failed(.filterIsNotGrayscale)
+        case .grayscaleOff where !isGrayscaleEnabled:
+            didVerifyShortcuts = true
+            shortcutTestPhase = .verified
+        case .grayscaleOff:
+            shortcutTestPhase = .failed(.colorWasNotRestored)
+        }
+    }
+
 }
 
 private enum Keys {
     static let didFinishAutomation = "didFinishAutomation"
+    static let didVerifyShortcuts = "didVerifyShortcuts"
+
+    static func openedInstaller(for shortcut: BundledShortcut) -> String {
+        "openedInstaller.\(shortcut.rawValue)"
+    }
 }
 
 enum BundledShortcut: String, CaseIterable, Identifiable {
@@ -79,4 +192,26 @@ enum BundledShortcut: String, CaseIterable, Identifiable {
     }
 
     var resourceName: String { displayName }
+
+    var callbackValue: String { rawValue }
+
+    init?(callbackValue: String) {
+        self.init(rawValue: callbackValue)
+    }
+}
+
+enum ShortcutTestPhase: Equatable {
+    case ready
+    case running(BundledShortcut)
+    case onVerified
+    case verified
+    case failed(ShortcutTestFailure)
+}
+
+enum ShortcutTestFailure: Equatable {
+    case couldNotOpen(BundledShortcut)
+    case couldNotRun(BundledShortcut)
+    case cancelled(BundledShortcut)
+    case filterIsNotGrayscale
+    case colorWasNotRestored
 }

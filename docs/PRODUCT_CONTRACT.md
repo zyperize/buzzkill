@@ -24,10 +24,11 @@ If a proposed feature blocks access, tracks duration, applies a shield, or chang
 The iOS and Android apps share the grayscale-only outcome, not the same technical implementation or setup flow.
 
 - **iOS:** Apple does not let Buzzkill write the protected Color Filter setting or create Personal Automations. Buzzkill bundles two Apple-signed shortcuts, **Buzzkill On** and **Buzzkill Off**, which the user installs from onboarding. The user creates two Personal Automations and chooses their apps: app opened runs Buzzkill On; app closed runs Buzzkill Off.
+- **iOS verification:** Before asking the user to build automations, onboarding runs both installed shortcuts through Shortcuts' callback URL flow and confirms the actual system grayscale state. This catches a missing shortcut or incorrectly configured Color Filter early.
 - **Android:** Android can perform the real automatic toggle only after the user grants privileged `WRITE_SECURE_SETTINGS` access. The Android app should write and restore the device-wide grayscale setting directly; it must not copy the iOS Shortcuts flow or use an overlay.
 
 Do not make one platform’s constraints or product copy define the other platform’s implementation.
 
 ## Explicit iOS setup UX decision
 
-The owner explicitly chose a hand-held setup instead of a wall of navigation text. Buzzkill installs signed On/Off shortcuts so users never build the Color Filters actions themselves. Public iOS APIs cannot open the Color Filters pane, create a Personal Automation, select apps, or force the Automations tab, so the guide must clearly coach those remaining system-owned steps.
+The owner explicitly chose a hand-held setup instead of a wall of navigation text. Buzzkill installs signed On/Off shortcuts so users never build the Color Filters actions themselves. Setup progress persists locally and can be reset from the main screen. Public iOS APIs cannot open the Color Filters pane, create a Personal Automation, select apps, or force the Automations tab, so the guide must clearly coach those remaining system-owned steps.
