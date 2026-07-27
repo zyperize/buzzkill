@@ -16,7 +16,7 @@ _Checked July 26, 2026._
 - [ ] In **Xcode → Buzzkill target → Signing & Capabilities**, select the Apple Developer team for the Apple ID you added. Xcode then creates or downloads the matching provisioning profile.
 - [ ] In the Apple Developer account, register `com.buzzkill.app` if it does not already exist.
 - [ ] Build once on a physical iPhone and confirm whether **Set Color Filters** is present in Shortcuts. If it is absent, validate the manual Accessibility Shortcut fallback instead.
-- [ ] Decide whether to remove or replace the private `App-prefs:` Color Filters deep link before App Store submission. It is currently included by explicit product direction for one-tap setup, but is not an App Store-safe API.
+- [x] Do not use private Settings deep links. iOS only permits an app to deep-link to its own Settings page, not to the system Color Filters pane.
 - [ ] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (or use Xcode Organizer). No local App Store Connect credentials are configured for Buzzkill yet.
 - [ ] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
 - [ ] Publish `docs/PRIVACY.md` at a public HTTPS URL, replace its Contact placeholder with a real support email or support page, and enter that URL in App Store Connect. Also enter a Support URL.

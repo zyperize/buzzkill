@@ -22,17 +22,9 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingSetupGuide) {
                 AutomationGuide(
-                    shortcutSupport: viewModel.shortcutSupport,
-                    openColorFilters: viewModel.openColorFiltersSettings,
-                    openAccessibilityShortcut: viewModel.openAccessibilityShortcutSettings,
                     openShortcuts: viewModel.openAutomationCreator,
                     finish: {
-                        viewModel.shortcutSupport = .setColorFiltersAvailable
                         viewModel.didFinishAutomation = true
-                    },
-                    markManualFallback: {
-                        viewModel.shortcutSupport = .manualFallback
-                        viewModel.didFinishAutomation = false
                     }
                 )
             }
@@ -83,9 +75,7 @@ struct ContentView: View {
     private var setupCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Set up grayscale").font(.title3.bold())
-            Text(viewModel.shortcutSupport == .manualFallback
-                ? "Automatic Color Filter actions are unavailable on this iPhone. Use the manual Accessibility Shortcut instead."
-                : "First confirm that this iPhone exposes Set Color Filters in Shortcuts. Only then create the automation.")
+            Text("A short, guided setup for the two system automations that turn grayscale on and off.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Button {
@@ -110,15 +100,10 @@ struct ContentView: View {
 }
 
 private struct AutomationGuide: View {
-    let shortcutSupport: ShortcutSupport
-    let openColorFilters: () -> Void
-    let openAccessibilityShortcut: () -> Void
     let openShortcuts: () -> Void
     let finish: () -> Void
-    let markManualFallback: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var page = 0
-    @State private var showingManualFallback = false
 
     var body: some View {
         NavigationStack {
@@ -127,10 +112,11 @@ private struct AutomationGuide: View {
                     OnboardingPage(
                         step: 1,
                         title: "Pick Grayscale",
-                        detail: "Set the filter Buzzkill will use. Turn Color Filters on, choose Grayscale, then turn it back off.",
-                        primaryTitle: "Open Color Filters",
+                        detail: "In Settings, go to Accessibility → Display & Text Size → Color Filters. Choose Grayscale, then turn Color Filters back off. iPhone does not allow an app to open this exact page directly.",
+                        primaryTitle: "I picked Grayscale",
                         primaryIcon: "circle.lefthalf.filled",
-                        primaryAction: openColorFilters,
+                        primaryAction: { page = 1 },
+                        showContinue: false,
                         continueTitle: "I picked Grayscale",
                         continueAction: { page = 1 }
                     )
@@ -138,10 +124,11 @@ private struct AutomationGuide: View {
                     OnboardingPage(
                         step: 2,
                         title: "When an app opens",
-                        detail: "Create an App automation in Shortcuts. Choose your apps, choose Is Opened, then set Color Filters to On. Pick Run Immediately.",
+                        detail: "In Shortcuts, tap Automation → + → App. Pick your apps and Is Opened, then Run Immediately → Next → New Blank Automation. Add Action → Apps → Settings → Set Color Filters → Turn On.",
                         primaryTitle: "Open Shortcuts",
                         primaryIcon: "arrow.up.forward.app",
                         primaryAction: openShortcuts,
+                        showContinue: true,
                         continueTitle: "I made the open rule",
                         continueAction: { page = 2 }
                     )
@@ -149,24 +136,19 @@ private struct AutomationGuide: View {
                     OnboardingPage(
                         step: 3,
                         title: "When an app closes",
-                        detail: "Make one more App automation for the same apps. Choose Is Closed, set Color Filters to Off, and pick Run Immediately.",
+                        detail: "Repeat the same setup for the same apps, but choose Is Closed. After New Blank Automation, add Apps → Settings → Set Color Filters and change it to Turn Off.",
                         primaryTitle: "Open Shortcuts",
                         primaryIcon: "arrow.up.forward.app",
                         primaryAction: openShortcuts,
+                        showContinue: true,
                         continueTitle: "I made the close rule",
                         continueAction: { page = 3 }
                     )
                     .tag(2)
-                    SupportCheckPage(
-                        showingManualFallback: showingManualFallback,
-                        openAccessibilityShortcut: openAccessibilityShortcut,
-                        foundAction: {
+                    FinishSetupPage(
+                        finish: {
                             finish()
                             dismiss()
-                        },
-                        missingAction: {
-                            markManualFallback()
-                            showingManualFallback = true
                         }
                     )
                     .tag(3)
@@ -177,9 +159,6 @@ private struct AutomationGuide: View {
             .navigationTitle("Set up Buzzkill")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } } }
-            .onAppear {
-                showingManualFallback = shortcutSupport == .manualFallback
-            }
         }
     }
 
@@ -204,6 +183,7 @@ private struct OnboardingPage: View {
     let primaryTitle: String
     let primaryIcon: String
     let primaryAction: () -> Void
+    let showContinue: Bool
     let continueTitle: String
     let continueAction: () -> Void
 
@@ -229,19 +209,18 @@ private struct OnboardingPage: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(.white)
-            Button(continueTitle, action: continueAction)
-                .buttonStyle(.bordered)
-                .tint(.primary)
+            if showContinue {
+                Button(continueTitle, action: continueAction)
+                    .buttonStyle(.bordered)
+                    .tint(.primary)
+            }
         }
         .padding(28)
     }
 }
 
-private struct SupportCheckPage: View {
-    let showingManualFallback: Bool
-    let openAccessibilityShortcut: () -> Void
-    let foundAction: () -> Void
-    let missingAction: () -> Void
+private struct FinishSetupPage: View {
+    let finish: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -249,34 +228,19 @@ private struct SupportCheckPage: View {
                 .font(.caption.weight(.bold))
                 .tracking(1)
                 .foregroundStyle(.secondary)
-            Image(systemName: showingManualFallback ? "hand.tap" : "checkmark.seal")
+            Image(systemName: "checkmark.seal")
                 .font(.system(size: 44, weight: .medium))
-            Text(showingManualFallback ? "Use the quick fallback" : "Did you find the action?")
+            Text("You’re set")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .tracking(-0.7)
-            Text(showingManualFallback
-                ? "Set Color Filters as your Accessibility Shortcut. After that, a triple-click of the Side button toggles grayscale whenever you want it."
-                : "In Shortcuts, search for Set Color Filters. If it appears, Buzzkill can work automatically.")
+            Text("The action is called Set Color Filters. It appears only after you choose New Blank Automation and then Add Action → Apps → Settings. It is not an option on the App trigger screen.")
                 .font(.body)
                 .foregroundStyle(.secondary)
             Spacer()
-            if showingManualFallback {
-                Button(action: openAccessibilityShortcut) {
-                    Label("Open Accessibility Shortcut", systemImage: "hand.tap")
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(.black)
-                }
+            Button("Finish setup", action: finish)
                 .buttonStyle(.borderedProminent)
                 .tint(.white)
-            } else {
-                Button("Yes, I found it", action: foundAction)
-                    .buttonStyle(.borderedProminent)
-                    .tint(.white)
-                    .foregroundStyle(.black)
-                Button("No, it’s missing", action: missingAction)
-                    .buttonStyle(.bordered)
-                    .tint(.primary)
-            }
+                .foregroundStyle(.black)
         }
         .padding(28)
     }

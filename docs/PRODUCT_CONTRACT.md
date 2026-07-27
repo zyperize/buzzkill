@@ -30,4 +30,4 @@ Do not make one platform’s constraints or product copy define the other platfo
 
 ## Explicit iOS setup UX decision
 
-The owner explicitly chose a hand-held setup instead of a wall of navigation text. The iOS guide uses a dedicated **Open Color Filters** button for the first step. It uses the private `App-prefs:` Settings URL scheme because public iOS APIs cannot open the Color Filters pane directly. This is an intentional usability-over-App-Store-safety choice; it must be re-evaluated before App Store submission.
+The owner explicitly chose a hand-held setup instead of a wall of navigation text. The iOS guide must name the exact system paths and the exact `Set Color Filters` action location. Public iOS APIs cannot open the Color Filters pane or the Automations tab directly, so the guide must never claim that a button can land on either exact destination.
