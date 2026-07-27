@@ -22,6 +22,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingSetupGuide) {
                 AutomationGuide(
+                    installShortcut: viewModel.installShortcut,
                     openShortcuts: viewModel.openAutomationCreator,
                     finish: {
                         viewModel.didFinishAutomation = true
@@ -100,10 +101,12 @@ struct ContentView: View {
 }
 
 private struct AutomationGuide: View {
+    let installShortcut: (BundledShortcut) -> Void
     let openShortcuts: () -> Void
     let finish: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var page = 0
+    @State private var openedInstallers: Set<BundledShortcut> = []
 
     var body: some View {
         NavigationStack {
@@ -121,35 +124,34 @@ private struct AutomationGuide: View {
                         continueAction: { page = 1 }
                     )
                     .tag(0)
-                    OnboardingPage(
-                        step: 2,
-                        title: "When an app opens",
-                        detail: "In Shortcuts, tap Automation → + → App. Pick your apps and Is Opened, then Run Immediately → Next → New Blank Automation. Add Action → Apps → Settings → Set Color Filters → Turn On.",
-                        primaryTitle: "Open Shortcuts",
-                        primaryIcon: "arrow.up.forward.app",
-                        primaryAction: openShortcuts,
-                        showContinue: true,
-                        continueTitle: "I made the open rule",
+                    InstallShortcutsPage(
+                        openedInstallers: openedInstallers,
+                        install: install,
                         continueAction: { page = 2 }
                     )
                     .tag(1)
                     OnboardingPage(
                         step: 3,
-                        title: "When an app closes",
-                        detail: "Repeat the same setup for the same apps, but choose Is Closed. After New Blank Automation, add Apps → Settings → Set Color Filters and change it to Turn Off.",
+                        title: "When an app opens",
+                        detail: "In Shortcuts, tap Automation → + → App. Pick your apps, choose Is Opened and Run Immediately, then select the installed Buzzkill On shortcut.",
                         primaryTitle: "Open Shortcuts",
                         primaryIcon: "arrow.up.forward.app",
                         primaryAction: openShortcuts,
                         showContinue: true,
-                        continueTitle: "I made the close rule",
+                        continueTitle: "I made the open rule",
                         continueAction: { page = 3 }
                     )
                     .tag(2)
-                    FinishSetupPage(
-                        finish: {
-                            finish()
-                            dismiss()
-                        }
+                    OnboardingPage(
+                        step: 4,
+                        title: "When an app closes",
+                        detail: "Make one more App automation for the same apps. Choose Is Closed and Run Immediately, then select the installed Buzzkill Off shortcut.",
+                        primaryTitle: "Open Shortcuts",
+                        primaryIcon: "arrow.up.forward.app",
+                        primaryAction: openShortcuts,
+                        showContinue: true,
+                        continueTitle: "Finish setup",
+                        continueAction: completeSetup
                     )
                     .tag(3)
                 }
@@ -173,6 +175,16 @@ private struct AutomationGuide: View {
         .animation(.easeInOut(duration: 0.2), value: page)
         .padding(.bottom, 20)
         .accessibilityLabel("Setup step \(page + 1) of 4")
+    }
+
+    private func install(_ shortcut: BundledShortcut) {
+        installShortcut(shortcut)
+        openedInstallers.insert(shortcut)
+    }
+
+    private func completeSetup() {
+        finish()
+        dismiss()
     }
 }
 
@@ -219,28 +231,51 @@ private struct OnboardingPage: View {
     }
 }
 
-private struct FinishSetupPage: View {
-    let finish: () -> Void
+private struct InstallShortcutsPage: View {
+    let openedInstallers: Set<BundledShortcut>
+    let install: (BundledShortcut) -> Void
+    let continueAction: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("STEP 4 OF 4")
+            Text("STEP 2 OF 4")
                 .font(.caption.weight(.bold))
                 .tracking(1)
                 .foregroundStyle(.secondary)
-            Image(systemName: "checkmark.seal")
+            Image(systemName: "square.and.arrow.down")
                 .font(.system(size: 44, weight: .medium))
-            Text("You’re set")
+            Text("Install two tiny shortcuts")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .tracking(-0.7)
-            Text("The action is called Set Color Filters. It appears only after you choose New Blank Automation and then Add Action → Apps → Settings. It is not an option on the App trigger screen.")
+            Text("Buzzkill already made the Color Filters actions. Add both to Shortcuts, then come back here. You won’t have to build either shortcut yourself.")
                 .font(.body)
                 .foregroundStyle(.secondary)
+            VStack(spacing: 12) {
+                ForEach(BundledShortcut.allCases) { shortcut in
+                    Button {
+                        install(shortcut)
+                    } label: {
+                        Label(
+                            openedInstallers.contains(shortcut)
+                                ? "\(shortcut.displayName) opened"
+                                : "Install \(shortcut.displayName)",
+                            systemImage: openedInstallers.contains(shortcut)
+                                ? "checkmark.circle.fill"
+                                : "square.and.arrow.down"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.primary)
+                }
+            }
             Spacer()
-            Button("Finish setup", action: finish)
+            Button("Both are installed", action: continueAction)
+                .frame(maxWidth: .infinity)
                 .buttonStyle(.borderedProminent)
                 .tint(.white)
                 .foregroundStyle(.black)
+                .disabled(openedInstallers.count < BundledShortcut.allCases.count)
         }
         .padding(28)
     }

@@ -50,11 +50,10 @@ In Xcode:
 - Pick a simulator (iPhone 16, latest iOS).
 - ⌘R to run.
 
-The app guides the user through the supported system setup. On each iPhone,
-first configure Color Filters to Grayscale, then check whether Shortcuts
-offers **Set Color Filters**. If it does, create two app automations: opened
-turns it on and closed turns it off. If the action is absent, use the manual
-Accessibility Shortcut fallback.
+The app guides the user through the supported system setup. On each physical
+iPhone, first configure Color Filters to Grayscale, then install the bundled
+**Buzzkill On** and **Buzzkill Off** shortcuts. Create two app automations:
+opened runs Buzzkill On and closed runs Buzzkill Off.
 
 ### 3. Android
 
@@ -138,6 +137,6 @@ npm run build
 - **Android: "SDK location not found"** — set `ANDROID_HOME` in your
   shell, OR open the project once in Android Studio (it writes
   `local.properties`).
-- **iOS: Set Color Filters is missing in Shortcuts** — automatic per-app
-  grayscale is not available on that iPhone. Use Settings > Accessibility >
-  Accessibility Shortcut > Color Filters for the manual fallback.
+- **iOS Simulator:** Shortcuts and system actions are incomplete in current
+  simulator runtimes. Validate shortcut installation and automations on a
+  physical iPhone.

@@ -34,8 +34,49 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func installShortcut(_ shortcut: BundledShortcut) {
+        guard let fileURL = bundledShortcutURL(for: shortcut) else {
+            statusMessage = "Buzzkill couldn’t find the \(shortcut.displayName) installer."
+            return
+        }
+
+        UIApplication.shared.open(fileURL) { [weak self] opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                self?.statusMessage = "Couldn’t open \(shortcut.displayName). Try reinstalling Buzzkill."
+            }
+        }
+    }
+
+    private func bundledShortcutURL(for shortcut: BundledShortcut) -> URL? {
+        Bundle.main.url(
+            forResource: shortcut.resourceName,
+            withExtension: "shortcut",
+            subdirectory: "Shortcuts"
+        ) ?? Bundle.main.url(
+            forResource: shortcut.resourceName,
+            withExtension: "shortcut"
+        )
+    }
+
 }
 
 private enum Keys {
     static let didFinishAutomation = "didFinishAutomation"
+}
+
+enum BundledShortcut: String, CaseIterable, Identifiable {
+    case grayscaleOn
+    case grayscaleOff
+
+    var id: Self { self }
+
+    var displayName: String {
+        switch self {
+        case .grayscaleOn: "Buzzkill On"
+        case .grayscaleOff: "Buzzkill Off"
+        }
+    }
+
+    var resourceName: String { displayName }
 }

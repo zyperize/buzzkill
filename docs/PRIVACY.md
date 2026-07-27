@@ -8,7 +8,7 @@ Buzzkill does not collect, transmit, store on a remote server, or share personal
 
 ## What Buzzkill stores on your device
 
-- Whether you finished the local automation setup and whether this iPhone exposes the Shortcuts action needed for automatic setup.
+- Whether you marked the local automation setup as finished.
 
 These values are stored only in the operating system’s local app storage (`UserDefaults`). They are not uploaded by Buzzkill.
 

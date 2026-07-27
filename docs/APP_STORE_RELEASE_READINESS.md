@@ -15,13 +15,13 @@ _Checked July 26, 2026._
 
 - [ ] In **Xcode → Buzzkill target → Signing & Capabilities**, select the Apple Developer team for the Apple ID you added. Xcode then creates or downloads the matching provisioning profile.
 - [ ] In the Apple Developer account, register `com.buzzkill.app` if it does not already exist.
-- [ ] Build once on a physical iPhone and confirm whether **Set Color Filters** is present in Shortcuts. If it is absent, validate the manual Accessibility Shortcut fallback instead.
+- [ ] Install both bundled shortcuts on a physical iPhone and validate the opened/closed automations.
 - [x] Do not use private Settings deep links. iOS only permits an app to deep-link to its own Settings page, not to the system Color Filters pane.
 - [ ] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (or use Xcode Organizer). No local App Store Connect credentials are configured for Buzzkill yet.
 - [ ] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
 - [ ] Publish `docs/PRIVACY.md` at a public HTTPS URL, replace its Contact placeholder with a real support email or support page, and enter that URL in App Store Connect. Also enter a Support URL.
 - [ ] Set App Privacy in App Store Connect to **Data Not Collected**, provided the shipping binary remains local-only.
-- [ ] Capture store screenshots from the final binary, including the Shortcuts setup and manual-fallback states. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
+- [ ] Capture store screenshots from the final binary, including shortcut installation and Personal Automation setup. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
 - [ ] Add App Review notes explaining: “Buzzkill guides users through a local Apple Shortcuts setup. It does not block apps, monitor use, or change Color Filters directly. The user selects apps and completes any automation in Shortcuts.”
 - [ ] Archive, upload to TestFlight, and test this flow on a physical iPhone before submission.
 

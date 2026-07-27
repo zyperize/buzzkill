@@ -7,24 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		28A26FFA1A4EE1AC18864009 /* Buzzkill On.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = F2F943724B112F6637C5B989 /* Buzzkill On.shortcut */; };
 		2C32752C4E4BBA4E4B32DF46 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2621EB02619AF3991AB6CE9 /* ContentView.swift */; };
 		431B6DFB19E92E9204517E17 /* BuzzkillApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E9F1972840BDBE09748FF8 /* BuzzkillApp.swift */; };
 		438D6B7F50189706F5D09A9C /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8EEE9200ED2E6376523E6A /* AppViewModel.swift */; };
 		56A6DAD2BD8236B9823DE9E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AC21B15B3281A35A06603538 /* PrivacyInfo.xcprivacy */; };
+		62D9F0B96B8CCA1C6B19D970 /* Buzzkill Off.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = A5808ADA74B84A770BF6A01D /* Buzzkill Off.shortcut */; };
 		B50AEFDEF1CA36C9A8AE6E8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09C3BC6692200EF908700133 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		09C3BC6692200EF908700133 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		811505DEE9C8022B3E75C4E3 /* Buzzkill.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Buzzkill.entitlements; sourceTree = "<group>"; };
+		A5808ADA74B84A770BF6A01D /* Buzzkill Off.shortcut */ = {isa = PBXFileReference; path = "Buzzkill Off.shortcut"; sourceTree = "<group>"; };
 		AC21B15B3281A35A06603538 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B2621EB02619AF3991AB6CE9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BA8EEE9200ED2E6376523E6A /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		E3BCC085CF61B614E60A72E7 /* Buzzkill.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Buzzkill.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F943724B112F6637C5B989 /* Buzzkill On.shortcut */ = {isa = PBXFileReference; path = "Buzzkill On.shortcut"; sourceTree = "<group>"; };
 		F5E9F1972840BDBE09748FF8 /* BuzzkillApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuzzkillApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		2B4C93756F4AB32220095983 /* Shortcuts */ = {
+			isa = PBXGroup;
+			children = (
+				A5808ADA74B84A770BF6A01D /* Buzzkill Off.shortcut */,
+				F2F943724B112F6637C5B989 /* Buzzkill On.shortcut */,
+			);
+			path = Shortcuts;
+			sourceTree = "<group>";
+		};
 		3F4008182E4110929A5E93D3 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -37,6 +50,7 @@
 			isa = PBXGroup;
 			children = (
 				09C3BC6692200EF908700133 /* Assets.xcassets */,
+				2B4C93756F4AB32220095983 /* Shortcuts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -147,6 +161,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B50AEFDEF1CA36C9A8AE6E8D /* Assets.xcassets in Resources */,
+				62D9F0B96B8CCA1C6B19D970 /* Buzzkill Off.shortcut in Resources */,
+				28A26FFA1A4EE1AC18864009 /* Buzzkill On.shortcut in Resources */,
 				56A6DAD2BD8236B9823DE9E7 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

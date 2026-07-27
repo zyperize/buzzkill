@@ -23,11 +23,11 @@ If a proposed feature blocks access, tracks duration, applies a shield, or chang
 
 The iOS and Android apps share the grayscale-only outcome, not the same technical implementation or setup flow.
 
-- **iOS:** Apple does not let Buzzkill write the protected Color Filter setting. The app helps the user configure Grayscale once and check whether their iPhone currently exposes the **Set Color Filters** Shortcuts action. When it does, they create two Shortcuts automations: app opened turns it on and app closed turns it off. When it does not, only the manual Accessibility Shortcut is available.
+- **iOS:** Apple does not let Buzzkill write the protected Color Filter setting or create Personal Automations. Buzzkill bundles two Apple-signed shortcuts, **Buzzkill On** and **Buzzkill Off**, which the user installs from onboarding. The user creates two Personal Automations and chooses their apps: app opened runs Buzzkill On; app closed runs Buzzkill Off.
 - **Android:** Android can perform the real automatic toggle only after the user grants privileged `WRITE_SECURE_SETTINGS` access. The Android app should write and restore the device-wide grayscale setting directly; it must not copy the iOS Shortcuts flow or use an overlay.
 
 Do not make one platform’s constraints or product copy define the other platform’s implementation.
 
 ## Explicit iOS setup UX decision
 
-The owner explicitly chose a hand-held setup instead of a wall of navigation text. The iOS guide must name the exact system paths and the exact `Set Color Filters` action location. Public iOS APIs cannot open the Color Filters pane or the Automations tab directly, so the guide must never claim that a button can land on either exact destination.
+The owner explicitly chose a hand-held setup instead of a wall of navigation text. Buzzkill installs signed On/Off shortcuts so users never build the Color Filters actions themselves. Public iOS APIs cannot open the Color Filters pane, create a Personal Automation, select apps, or force the Automations tab, so the guide must clearly coach those remaining system-owned steps.

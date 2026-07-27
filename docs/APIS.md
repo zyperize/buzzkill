@@ -6,7 +6,7 @@ Buzzkill has no backend, paid API, analytics SDK, login, or cloud account.
 
 To distribute the iOS guide app, the only required account is the [Apple Developer Program](https://developer.apple.com/programs/enroll/) ($99/year). The app does not need the Family Controls entitlement because app selection happens in Shortcuts, not in Buzzkill.
 
-Before release, test on a real iPhone whether Shortcuts exposes **Set Color Filters**. If it does, automatic setup can use two personal automations: app opened turns the filter on and app closed turns it off. If it does not, the app must present the manual Accessibility Shortcut fallback. Buzzkill cannot change the protected setting itself.
+Buzzkill bundles two shortcuts signed by Apple for installation by any user. Before release, test both bundled `.shortcut` installers and both Personal Automations on a physical iPhone. Buzzkill cannot change the protected setting or create Personal Automations itself.
 
 ## Android
 
@@ -23,6 +23,6 @@ See [ANDROID_CAPABILITY.md](./ANDROID_CAPABILITY.md) for the platform constraint
 ## Still needed before a release
 
 - An Apple Developer membership and App Store Connect record for iOS distribution.
-- A physical iPhone test of the current Shortcuts action availability.
+- A physical iPhone test of both shortcut installers and both automations.
 - A JDK 17 + Android SDK environment and physical Android-device test for the privileged build.
 - A hosted version of [PRIVACY.md](./PRIVACY.md) with a real support contact.
