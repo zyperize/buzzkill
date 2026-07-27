@@ -44,15 +44,15 @@ final class AppViewModel: ObservableObject {
 
     func openColorFiltersSettings() {
         openPrivateSettingsURL(
-            "App-prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#FILTER_COLOR_ENABLED",
-            fallback: "App-prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT"
+            "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#GRAYSCALE",
+            fallback: "App-prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#FILTER_COLOR_ENABLED"
         )
     }
 
     func openAccessibilityShortcutSettings() {
         openPrivateSettingsURL(
-            "App-prefs:root=ACCESSIBILITY&path=TRIPLE_CLICK_TITLE",
-            fallback: "App-prefs:root=ACCESSIBILITY"
+            "settings-navigation://com.apple.Settings.Accessibility/TRIPLE_CLICK_TITLE",
+            fallback: "App-prefs:root=ACCESSIBILITY&path=TRIPLE_CLICK_TITLE"
         )
     }
 
