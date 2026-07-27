@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Buzzkill</string>
+    <string name="accessibility_service_description">Detects when selected apps become foregrounded so Buzzkill can turn the device grayscale on and restore the prior display setting when they close.</string>
+</resources>

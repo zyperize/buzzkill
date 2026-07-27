@@ -1,0 +1,5 @@
+<resources>
+    <color name="buzzkill_gray">#CC808080</color>
+    <color name="buzzkill_bg">#111111</color>
+    <color name="buzzkill_accent">#D0BCFF</color>
+</resources>

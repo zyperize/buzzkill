@@ -1,0 +1,15 @@
+.DS_Store
+.agents/
+.claude/
+agent/
+
+# Android build output and local IDE configuration
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+
+# Xcode user-specific state
+ios/Buzzkill.xcodeproj/project.xcworkspace/xcuserdata/
+ios/Buzzkill.xcodeproj/xcuserdata/
