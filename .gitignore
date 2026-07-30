@@ -6,6 +6,7 @@ agent/
 apps/web/.vercel/
 distribution/DerivedData/
 distribution/DeviceDerivedData/
+distribution/screenshots/onboarding-dark-raw/
 **/build/
 **/xcuserdata/
 .DS_Store
