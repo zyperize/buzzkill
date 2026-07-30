@@ -44,4 +44,4 @@ date above and call it out in the next app release notes.
 
 ## Contact
 
-Before publishing this policy, replace this section with a support email or support URL that users can use to contact the app developer.
+For privacy questions or support, use the public [Buzzkill support issues](https://github.com/zyperize/buzzkill/issues). Please do not include private data in a report.

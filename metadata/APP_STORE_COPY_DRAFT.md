@@ -1,14 +1,14 @@
 # Buzzkill — App Store copy draft
 
-This draft matches the current binary. Before syncing it to App Store Connect, replace the two required URLs with real public HTTPS pages.
+This draft matches the current binary and is mirrored in the canonical `metadata/` JSON files.
 
 ## App information — English (U.S.)
 
 - **Name:** Buzzkill
 - **Subtitle:** Make scrolling less colorful
 - **Category:** Productivity
-- **Privacy policy URL:** REQUIRED — publish `docs/PRIVACY.md` first
-- **Support URL:** REQUIRED — a public support page or contact form
+- **Privacy policy URL:** https://zyperize.github.io/buzzkill/privacy.html
+- **Support URL:** https://zyperize.github.io/buzzkill/support.html
 
 ## Version 0.1.0 — English (U.S.)
 

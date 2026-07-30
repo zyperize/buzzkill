@@ -17,3 +17,25 @@
 - The source of truth is now [docs/PRODUCT_CONTRACT.md](../docs/PRODUCT_CONTRACT.md).
 - The Android source has been reviewed against that contract: no overlay, blocking, usage limit, Back action, screen-content retrieval, or network operation remains.
 - JDK 17 and Android API 35 build tools are installed locally. `:app:compileDebugKotlin` passes.
+
+# Buzzkill iOS — repair the guided setup flow
+
+## Plan
+
+- [ ] Replace the misleading Accessibility opener so it tries the Accessibility
+  root directly, never intentionally routes to Buzzkill's app-settings page,
+  and shows the tap-by-tap fallback when iOS cannot honor the destination.
+- [ ] Make the grayscale test wait on an explicit visual confirmation instead
+  of advancing from the system status alone.
+- [ ] Add a clear “Yes, everything turned gray” action that runs Buzzkill Off,
+  verifies color was restored, and only then unlocks the following setup step.
+- [ ] Keep a “No, I still see color” repair path that restores color before
+  presenting the grayscale-selection instructions.
+- [ ] Add persistent Back and Next controls to the four-step setup, with Next
+  disabled and explained until the current step's required action is complete.
+- [ ] Verify every transition, including Settings return, shortcut cancel/error,
+  repair, Back, Next, and final completion; then build the iOS project.
+
+## Review
+
+- Pending implementation and verification.

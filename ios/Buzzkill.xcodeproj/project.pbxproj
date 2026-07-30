@@ -11,6 +11,7 @@
 		2C32752C4E4BBA4E4B32DF46 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2621EB02619AF3991AB6CE9 /* ContentView.swift */; };
 		431B6DFB19E92E9204517E17 /* BuzzkillApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E9F1972840BDBE09748FF8 /* BuzzkillApp.swift */; };
 		438D6B7F50189706F5D09A9C /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8EEE9200ED2E6376523E6A /* AppViewModel.swift */; };
+		4E2D51A701A64A23B91E1C20 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D5D9E7A8D7B45E2A1C4F103 /* OnboardingView.swift */; };
 		56A6DAD2BD8236B9823DE9E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AC21B15B3281A35A06603538 /* PrivacyInfo.xcprivacy */; };
 		62D9F0B96B8CCA1C6B19D970 /* Buzzkill Off.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = A5808ADA74B84A770BF6A01D /* Buzzkill Off.shortcut */; };
 		B50AEFDEF1CA36C9A8AE6E8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09C3BC6692200EF908700133 /* Assets.xcassets */; };
@@ -23,6 +24,7 @@
 		AC21B15B3281A35A06603538 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B2621EB02619AF3991AB6CE9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BA8EEE9200ED2E6376523E6A /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		7D5D9E7A8D7B45E2A1C4F103 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C94F6080E5F81DC0FDC1FA46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E3BCC085CF61B614E60A72E7 /* Buzzkill.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Buzzkill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2F943724B112F6637C5B989 /* Buzzkill On.shortcut */ = {isa = PBXFileReference; path = "Buzzkill On.shortcut"; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				B2621EB02619AF3991AB6CE9 /* ContentView.swift */,
+				7D5D9E7A8D7B45E2A1C4F103 /* OnboardingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -179,6 +182,7 @@
 				438D6B7F50189706F5D09A9C /* AppViewModel.swift in Sources */,
 				431B6DFB19E92E9204517E17 /* BuzzkillApp.swift in Sources */,
 				2C32752C4E4BBA4E4B32DF46 /* ContentView.swift in Sources */,
+				4E2D51A701A64A23B91E1C20 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

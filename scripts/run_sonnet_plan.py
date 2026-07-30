@@ -2,7 +2,7 @@
 import subprocess
 from pathlib import Path
 
-root = Path('.')
+root = Path(__file__).resolve().parents[1]
 resources = (root / 'docs/research/platform-resources.md').read_text()
 prompt = (root / 'docs/prompts/sonnet-plan-prompt.md').read_text()
 full_prompt = f'''You will receive official platform resources and a product-planning task. Use the resources to ground the plan, explicitly cite the relevant frameworks and policy names, and produce only the requested plan in markdown.\n\nOFFICIAL RESOURCES:\n\n{resources}\n\nTASK:\n\n{prompt}\n'''

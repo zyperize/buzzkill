@@ -1,6 +1,6 @@
 # Buzzkill — App Store release readiness
 
-_Checked July 27, 2026._
+_Checked July 30, 2026._
 
 ## Complete in the project
 
@@ -16,15 +16,23 @@ _Checked July 27, 2026._
 - [ ] In **Xcode → Buzzkill target → Signing & Capabilities**, select the Apple Developer team for the Apple ID you added. Xcode then creates or downloads the matching provisioning profile.
 - [ ] In the Apple Developer account, register `com.buzzkill.app` if it does not already exist.
 - [ ] Install both bundled shortcuts on a physical iPhone and validate the opened/closed automations.
-- [ ] Before App Store submission, review the onboarding's undocumented `settings-navigation:` and `App-Prefs:` links. They attempt Color Filters directly and fall back to top-level Settings, but Apple provides no public API for these system destinations and may reject private URL schemes.
-- [ ] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (or use Xcode Organizer). No local App Store Connect credentials are configured for Buzzkill yet.
-- [ ] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
-- [ ] Publish `docs/PRIVACY.md` at a public HTTPS URL, replace its Contact placeholder with a real support email or support page, and enter that URL in App Store Connect. Also enter a Support URL.
+- [ ] Run the setup-flow regression on a physical iPhone:
+  - Buzzkill On must stop on **Did the colors turn gray?** indefinitely.
+  - **Yes, it turned gray — Continue** must run Buzzkill Off before advancing.
+  - **No, I still see color** must run Buzzkill Off before showing the repair guide.
+  - Back or Close from the gray confirmation must restore color without marking the test verified.
+  - Every setup page after the first must expose Back; every completed action must expose a clearly labeled Next or Finish action.
+  - **Open Accessibility** must be tested on the shipping iOS version; if its private route fails, the main-Settings fallback and pictured guide must remain usable.
+- [ ] Resolve the lock/unlock bypass before release: locking a selected app can fire its close rule, while unlocking into that still-frontmost app may not fire its open rule. Validate the proposed app-scheduled Focus strategy on a physical iPhone.
+- [ ] Before App Store submission, review the onboarding's undocumented `App-Prefs:` Accessibility-root link and main-Settings fallback. Apple provides no public Accessibility URL and may reject private URL schemes.
+- [x] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (local profile is configured; private key is kept outside the repo).
+- [x] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
+- [ ] After the repository is public and GitHub Pages has deployed, verify the privacy/support pages anonymously and then enter the Pages URLs in App Store Connect.
 - [ ] Set App Privacy in App Store Connect to **Data Not Collected**, provided the shipping binary remains local-only.
-- [ ] Capture store screenshots from the final binary, including shortcut installation and Personal Automation setup. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
-- [ ] Add App Review notes explaining: “Buzzkill guides users through a local Apple Shortcuts setup. It does not block apps, monitor use, or change Color Filters directly. The user selects apps and completes any automation in Shortcuts.”
+- [x] Upload six validated 6.5-inch iPhone screenshots covering Color Filters and Personal Automation setup. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
+- [ ] Add App Review notes explaining: “Buzzkill guides users through a local Apple Shortcuts setup. It does not block apps, monitor use, or change Color Filters directly. The user selects apps and completes any automation in Shortcuts.” (Requires a reviewer contact phone number.)
 - [ ] Archive, upload to TestFlight, and test this flow on a physical iPhone before submission.
 
 ## Current release blocker
 
-The local source is **not submission-ready yet** because physical-device Shortcuts verification, signing, App Store Connect credentials, and a published privacy/support URL still require the account owner. These are account and hosting steps rather than code defects.
+The App Store Connect record still needs App Privacy confirmation, app availability, and App Review contact details. The local source also still needs physical-device Shortcuts verification, signing, and a shipping build/test pass.

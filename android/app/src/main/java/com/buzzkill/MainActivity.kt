@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,19 +65,28 @@ import com.buzzkill.data.SettingsRepository
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private var resumeCount by mutableIntStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MaterialTheme {
-                Surface(Modifier.fillMaxSize(), color = Color(0xFF0A0A0A)) { BuzzkillHome() }
+                Surface(Modifier.fillMaxSize(), color = Color(0xFF0A0A0A)) {
+                    BuzzkillHome(resumeCount = resumeCount)
+                }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resumeCount += 1
     }
 }
 
 @Composable
-private fun BuzzkillHome() {
+private fun BuzzkillHome(resumeCount: Int) {
     val context = LocalContext.current
     val repository = remember { SettingsRepository(context) }
     val controller = remember { GrayscaleController(context, repository) }
@@ -91,7 +102,8 @@ private fun BuzzkillHome() {
         installedApps = appProvider.loadInstalledApps()
     }
 
-    LaunchedEffect(Unit) { refresh() }
+    LaunchedEffect(resumeCount) { refresh() }
+    BackHandler(enabled = pickerOpen) { pickerOpen = false }
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),

@@ -1,0 +1,8 @@
+{
+  "description": "Buzzkill helps you make selected apps feel less stimulating without blocking them or setting time limits.\n\nChoose the apps that pull you in, then Buzzkill walks you through a one-time Apple Shortcuts setup. When a selected app opens, the shortcut can turn your iPhone’s Color Filter to grayscale; when you leave it, a second shortcut can restore color.\n\nEverything stays on your iPhone. Buzzkill has no account, ads, analytics, app-usage tracking, or background uploads. It does not read your screen or content.\n\nYou stay in control: the apps remain available, and Apple Shortcuts runs the local automations. Buzzkill is a setup companion that explains each step, checks the shortcut behavior, and helps you repair the grayscale setting if needed.",
+  "keywords": "grayscale,focus,shortcuts,digital wellbeing,distraction",
+  "promotionalText": "Make the apps that pull you in feel a little less loud.",
+  "whatsNew": "First release.",
+  "supportUrl": "https://zyperize.github.io/buzzkill/support.html",
+  "marketingUrl": "https://zyperize.github.io/buzzkill/"
+}

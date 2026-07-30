@@ -1,15 +1,21 @@
-.DS_Store
+.asc/config.json
+.asc/reports/
 .agents/
 .claude/
 agent/
+apps/web/.vercel/
+distribution/DerivedData/
+distribution/DeviceDerivedData/
+**/build/
+**/xcuserdata/
+.DS_Store
 
-# Android build output and local IDE configuration
-android/.gradle/
-android/app/build/
-android/build/
-android/local.properties
-android/.idea/
-
-# Xcode user-specific state
-ios/Buzzkill.xcodeproj/project.xcworkspace/xcuserdata/
-ios/Buzzkill.xcodeproj/xcuserdata/
+# Never commit signing keys, certificates, provisioning profiles, or local env files.
+*.p8
+*.pem
+*.key
+*.p12
+*.mobileprovision
+.env
+.env.*
+!.env.example

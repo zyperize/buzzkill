@@ -24,6 +24,8 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var statusMessage = "Checking your display setting…"
 
     private let defaults: UserDefaults
+    private var shouldShowGrayscaleRepairAfterRestore = false
+    private var shouldResetTestAfterRestore = false
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -58,12 +60,10 @@ final class AppViewModel: ObservableObject {
 
     func openSystemSettings() {
         let destinations = [
-            "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#GRAYSCALE",
-            "settings-navigation://com.apple.Settings.Accessibility/DISPLAY_AND_TEXT",
-            "settings-navigation://com.apple.Settings.Accessibility",
-            "App-Prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT",
             "App-Prefs:root=ACCESSIBILITY",
-            "App-Prefs:"
+            "prefs:root=ACCESSIBILITY",
+            "App-Prefs:",
+            "prefs:"
         ]
         openFirstAvailableSettingsDestination(destinations)
     }
@@ -108,6 +108,11 @@ final class AppViewModel: ObservableObject {
     }
 
     func testShortcut(_ shortcut: BundledShortcut) {
+        if shortcut == .grayscaleOn {
+            shouldShowGrayscaleRepairAfterRestore = false
+            shouldResetTestAfterRestore = false
+        }
+
         guard let url = shortcutCallbackURL(for: shortcut) else {
             shortcutTestPhase = .failed(.couldNotOpen(shortcut))
             return
@@ -122,6 +127,18 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func restoreColorAfterFailedVisualCheck() {
+        shouldShowGrayscaleRepairAfterRestore = true
+        shouldResetTestAfterRestore = false
+        testShortcut(.grayscaleOff)
+    }
+
+    func restoreColorBeforeLeavingTest() {
+        shouldShowGrayscaleRepairAfterRestore = false
+        shouldResetTestAfterRestore = true
+        testShortcut(.grayscaleOff)
+    }
+
     func handleShortcutCallback(_ url: URL) {
         guard url.scheme == "buzzkill",
               url.host == "shortcut",
@@ -132,7 +149,7 @@ final class AppViewModel: ObservableObject {
 
         switch url.path {
         case "/success":
-            verifyShortcutResult(shortcut)
+            Task { await verifyShortcutResult(shortcut) }
         case "/cancel":
             shortcutTestPhase = .failed(.cancelled(shortcut))
         case "/error":
@@ -147,6 +164,8 @@ final class AppViewModel: ObservableObject {
         openedShortcutInstallers = []
         didVerifyShortcuts = false
         shortcutTestPhase = .ready
+        shouldShowGrayscaleRepairAfterRestore = false
+        shouldResetTestAfterRestore = false
         refreshGrayscaleStatus()
     }
 
@@ -184,20 +203,36 @@ final class AppViewModel: ObservableObject {
         return components.url
     }
 
-    private func verifyShortcutResult(_ shortcut: BundledShortcut) {
-        refreshGrayscaleStatus()
-
-        switch shortcut {
-        case .grayscaleOn where isGrayscaleEnabled:
+    private func verifyShortcutResult(_ shortcut: BundledShortcut) async {
+        if shortcut == .grayscaleOn {
+            refreshGrayscaleStatus()
             shortcutTestPhase = .onVerified
-        case .grayscaleOn:
-            shortcutTestPhase = .failed(.filterIsNotGrayscale)
-        case .grayscaleOff where !isGrayscaleEnabled:
-            didVerifyShortcuts = true
-            shortcutTestPhase = .verified
-        case .grayscaleOff:
-            shortcutTestPhase = .failed(.colorWasNotRestored)
+            return
         }
+
+        for attempt in 0..<5 {
+            refreshGrayscaleStatus()
+
+            if !isGrayscaleEnabled {
+                if shouldShowGrayscaleRepairAfterRestore {
+                    shouldShowGrayscaleRepairAfterRestore = false
+                    shortcutTestPhase = .failed(.filterIsNotGrayscale)
+                } else if shouldResetTestAfterRestore {
+                    shouldResetTestAfterRestore = false
+                    shortcutTestPhase = .ready
+                } else {
+                    didVerifyShortcuts = true
+                    shortcutTestPhase = .verified
+                }
+                return
+            }
+
+            if attempt < 4 {
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+        }
+
+        shortcutTestPhase = .failed(.colorWasNotRestored)
     }
 
 }

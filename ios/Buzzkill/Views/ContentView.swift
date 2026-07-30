@@ -4,15 +4,18 @@ import UIKit
 struct ContentView: View {
     @ObservedObject var viewModel: AppViewModel
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("didCompleteOnboarding") private var didCompleteOnboarding = false
     @State private var showingSetupGuide = false
+    @State private var showingOnboarding = false
+    @State private var shouldOpenSetupAfterOnboarding = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     hero
-                    statusCard
                     setupCard
+                    aboutButton
                     privacyNote
                 }
                 .padding(20)
@@ -26,6 +29,8 @@ struct ContentView: View {
                     openedShortcutInstallers: viewModel.openedShortcutInstallers,
                     shortcutTestPhase: viewModel.shortcutTestPhase,
                     testShortcut: viewModel.testShortcut,
+                    restoreColorAfterFailedVisualCheck: viewModel.restoreColorAfterFailedVisualCheck,
+                    restoreColorBeforeLeavingTest: viewModel.restoreColorBeforeLeavingTest,
                     openSettings: viewModel.openSystemSettings,
                     openShortcuts: viewModel.openAutomationCreator,
                     finish: {
@@ -33,7 +38,18 @@ struct ContentView: View {
                     }
                 )
             }
+            .fullScreenCover(
+                isPresented: $showingOnboarding,
+                onDismiss: handleOnboardingDismiss
+            ) {
+                OnboardingView(
+                    canClose: didCompleteOnboarding,
+                    onClose: { showingOnboarding = false },
+                    onStartSetup: finishOnboarding
+                )
+            }
         }
+        .onAppear(perform: presentOnboardingIfNeeded)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { viewModel.refreshGrayscaleStatus() }
         }
@@ -44,6 +60,15 @@ struct ContentView: View {
     }
 
     private var hero: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            mascot
+                .frame(maxWidth: .infinity, alignment: .center)
+            heroCopy
+        }
+        .padding(.top, 4)
+    }
+
+    private var heroCopy: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("COLOR, ON YOUR TERMS")
                 .font(.caption.weight(.bold))
@@ -52,64 +77,95 @@ struct ContentView: View {
             Text("Make the feed dull.")
                 .font(.system(size: 38, weight: .bold, design: .rounded))
                 .tracking(-1)
-            Text("Set it up once, then selected apps can switch your whole display to grayscale while they are open.")
+            Text("Keep access. Lose the visual sugar. Buzzkill turns selected apps grayscale while they’re open.")
                 .foregroundStyle(.secondary)
         }
-        .padding(.top, 4)
     }
 
-    private var statusCard: some View {
-        HStack(spacing: 16) {
-            Image(systemName: viewModel.isGrayscaleEnabled ? "circle.lefthalf.filled" : "circle")
-                .font(.system(size: 34))
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.isGrayscaleEnabled ? "Grayscale is on" : "Grayscale is off")
-                    .font(.headline)
-                Text(viewModel.statusMessage)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(20)
-        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Grayscale status")
-        .accessibilityValue(viewModel.isGrayscaleEnabled ? "On" : "Off")
+    private var mascot: some View {
+        Image("OnboardingWelcome")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 138, height: 138)
+            .accessibilityHidden(true)
     }
 
     private var setupCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Set up grayscale").font(.title3.bold())
-            Text("A short, guided setup for the two system automations that turn grayscale on and off.")
+            Label(
+                viewModel.didFinishAutomation ? "SETUP COMPLETE" : "ABOUT 5 MINUTES",
+                systemImage: viewModel.didFinishAutomation ? "checkmark.circle.fill" : "clock"
+            )
+            .font(.caption.weight(.black))
+            .tracking(0.8)
+            .foregroundStyle(.secondary)
+
+            Text(viewModel.didFinishAutomation ? "Buzzkill is ready" : "Choose the apps to dull")
+                .font(.title3.bold())
+
+            Text(
+                viewModel.didFinishAutomation
+                    ? "Review the Shortcuts setup or change which apps trigger grayscale."
+                    : "A guided setup connects two native Apple automations—one when your chosen apps open and one when they close."
+            )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
             Button {
                 showingSetupGuide = true
             } label: {
-                Label(viewModel.didFinishAutomation ? "Review setup" : "Check setup", systemImage: "checklist")
+                Label(viewModel.didFinishAutomation ? "Review setup" : "Set up Buzzkill", systemImage: "checklist")
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(Color(uiColor: .systemBackground))
             }
             .buttonStyle(.borderedProminent)
             .tint(.primary)
             if viewModel.didVerifyShortcuts || viewModel.didFinishAutomation {
-                Button("Start over") {
+                GuideSecondaryButton(title: "Restart setup guide") {
                     viewModel.resetSetupProgress()
                     showingSetupGuide = true
                 }
-                .buttonStyle(.bordered)
-                .tint(.primary)
+                Text("This resets Buzzkill’s checklist. It does not delete your shortcuts or automations.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(20)
         .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
+    private var aboutButton: some View {
+        GuideSecondaryButton(title: "Why Buzzkill works") {
+            showingOnboarding = true
+        }
+    }
+
     private var privacyNote: some View {
-        Text("Buzzkill does not block apps, limit time, or read what you do in another app. Apple runs the automation locally.")
-            .font(.footnote)
-            .foregroundStyle(.secondary)
+        Label(
+            "No account, VPN, or screen recording. Apple runs the automations locally.",
+            systemImage: "lock.shield.fill"
+        )
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 4)
+    }
+
+    private func presentOnboardingIfNeeded() {
+        if !didCompleteOnboarding {
+            showingOnboarding = true
+        }
+    }
+
+    private func finishOnboarding() {
+        didCompleteOnboarding = true
+        shouldOpenSetupAfterOnboarding = true
+        showingOnboarding = false
+    }
+
+    private func handleOnboardingDismiss() {
+        guard shouldOpenSetupAfterOnboarding else { return }
+        shouldOpenSetupAfterOnboarding = false
+        showingSetupGuide = true
     }
 }
 
@@ -118,6 +174,8 @@ private struct AutomationGuide: View {
     let openedShortcutInstallers: Set<BundledShortcut>
     let shortcutTestPhase: ShortcutTestPhase
     let testShortcut: (BundledShortcut) -> Void
+    let restoreColorAfterFailedVisualCheck: () -> Void
+    let restoreColorBeforeLeavingTest: () -> Void
     let openSettings: () -> Void
     let openShortcuts: () -> Void
     let finish: () -> Void
@@ -127,54 +185,63 @@ private struct AutomationGuide: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 18) {
-                TabView(selection: $page) {
-                    GrayscaleSetupPage(
-                        openSettings: openSettings,
-                        continueAction: { page = 1 }
-                    )
-                    .tag(0)
+                Group {
+                    switch page {
+                    case 0:
                     InstallShortcutsPage(
                         openedInstallers: openedShortcutInstallers,
                         install: installShortcut,
-                        continueAction: { page = 2 }
+                        continueAction: { page = 1 }
                     )
-                    .tag(1)
+                    case 1:
                     TestShortcutsPage(
                         phase: shortcutTestPhase,
                         testShortcut: testShortcut,
-                        continueAction: { page = 3 }
+                        restoreColorAfterFailedVisualCheck: restoreColorAfterFailedVisualCheck,
+                        openSettings: openSettings,
+                        continueAction: { page = 2 }
                     )
-                    .tag(2)
+                    case 2:
                     OpenAutomationPage(
                         openShortcuts: openShortcuts,
-                        continueAction: { page = 4 }
+                        continueAction: { page = 3 }
                     )
-                    .tag(3)
-                    OnboardingPage(
-                        step: 5,
-                        title: "When an app closes",
-                        detail: "Make one more App automation for the same apps. Choose Is Closed and Run Immediately, then select the installed Buzzkill Off shortcut.",
-                        primaryTitle: "Open Shortcuts",
-                        primaryIcon: "arrow.up.forward.app",
-                        primaryAction: openShortcuts,
-                        showContinue: true,
-                        continueTitle: "Finish setup",
-                        continueAction: completeSetup
+                    default:
+                    CloseAutomationPage(
+                        openShortcuts: openShortcuts,
+                        finish: completeSetup
                     )
-                    .tag(4)
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .id(page)
+                .transition(.opacity)
                 progress
             }
+            .animation(.easeInOut(duration: 0.2), value: page)
             .navigationTitle("Set up Buzzkill")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    if page == 0 {
+                        Button("Close", action: closeGuide)
+                    } else {
+                        Button(action: goBack) {
+                            Label("Back", systemImage: "chevron.left")
+                        }
+                    }
+                }
+                if page > 0 {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Close", action: closeGuide)
+                    }
+                }
+            }
         }
     }
 
     private var progress: some View {
         HStack(spacing: 7) {
-            ForEach(0..<5, id: \.self) { index in
+            ForEach(0..<4, id: \.self) { index in
                 Capsule()
                     .fill(index == page ? Color.primary : Color.secondary.opacity(0.25))
                     .frame(width: index == page ? 28 : 8, height: 8)
@@ -182,51 +249,27 @@ private struct AutomationGuide: View {
         }
         .animation(.easeInOut(duration: 0.2), value: page)
         .padding(.bottom, 20)
-        .accessibilityLabel("Setup step \(page + 1) of 5")
+        .accessibilityLabel("Setup step \(page + 1) of 4")
     }
 
     private func completeSetup() {
         finish()
         dismiss()
     }
-}
 
-private struct GrayscaleSetupPage: View {
-    let openSettings: () -> Void
-    let continueAction: () -> Void
+    private func goBack() {
+        restoreColorIfNeeded()
+        page -= 1
+    }
 
-    var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    StepHeader(step: 1)
-                    Image(systemName: "circle.lefthalf.filled")
-                        .font(.system(size: 44, weight: .medium))
-                    Text("Pick Grayscale")
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    Text("Tap the button below to jump to Color Filters. If your iOS version only opens Settings, make these three taps:")
-                        .foregroundStyle(.secondary)
-                    SetupInstruction(number: 1, text: "Tap Accessibility")
-                    SetupInstruction(number: 2, text: "Tap Display & Text Size")
-                    SetupInstruction(number: 3, text: "Tap Color Filters")
-                    Text("Choose Grayscale, then turn Color Filters back off. Buzzkill On will turn it on only when your selected apps open.")
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(28)
-            }
-            VStack(spacing: 12) {
-                GuideButton(
-                    title: "Open Color Filters",
-                    icon: "circle.lefthalf.filled",
-                    action: openSettings
-                )
-                Button("I picked Grayscale", action: continueAction)
-                    .buttonStyle(.bordered)
-                    .tint(.primary)
-            }
-            .padding(.horizontal, 28)
-            .padding(.bottom, 16)
+    private func closeGuide() {
+        restoreColorIfNeeded()
+        dismiss()
+    }
+
+    private func restoreColorIfNeeded() {
+        if shortcutTestPhase == .onVerified {
+            restoreColorBeforeLeavingTest()
         }
     }
 }
@@ -239,7 +282,7 @@ private struct OpenAutomationPage: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    StepHeader(step: 4)
+                    StepHeader(step: 3)
                     Image(systemName: "app.badge.checkmark")
                         .font(.system(size: 44, weight: .medium))
                     Text("When an app opens")
@@ -253,7 +296,8 @@ private struct OpenAutomationPage: View {
                     )
                     SetupScreenshot(
                         imageName: "ShortcutsAutomation",
-                        caption: "If this is your first rule, tap New Automation. Otherwise, tap +."
+                        caption: "If this is your first rule, tap New Automation. Otherwise, tap +.",
+                        cropAlignment: .bottom
                     )
                     SetupInstruction(
                         number: 2,
@@ -269,7 +313,8 @@ private struct OpenAutomationPage: View {
                     )
                     SetupScreenshot(
                         imageName: "ShortcutsAppTrigger",
-                        caption: "For this first rule: Is Opened + Run Immediately."
+                        caption: "For this first rule: Is Opened + Run Immediately.",
+                        cropAlignment: .center
                     )
                     SetupInstruction(
                         number: 5,
@@ -285,9 +330,10 @@ private struct OpenAutomationPage: View {
                     icon: "arrow.up.forward.app",
                     action: openShortcuts
                 )
-                Button("I made the open rule", action: continueAction)
-                    .buttonStyle(.bordered)
-                    .tint(.primary)
+                GuideSecondaryButton(
+                    title: "Next: Make the close rule",
+                    action: continueAction
+                )
             }
             .padding(.horizontal, 28)
             .padding(.bottom, 16)
@@ -295,28 +341,49 @@ private struct OpenAutomationPage: View {
     }
 }
 
-private struct OnboardingPage: View {
-    let step: Int
-    let title: String
-    let detail: String
-    let primaryTitle: String
-    let primaryIcon: String
-    let primaryAction: () -> Void
-    let showContinue: Bool
-    let continueTitle: String
-    let continueAction: () -> Void
+private struct CloseAutomationPage: View {
+    let openShortcuts: () -> Void
+    let finish: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    StepHeader(step: step)
-                    Image(systemName: primaryIcon)
+                    StepHeader(step: 4)
+                    Image(systemName: "app.badge.checkmark")
                         .font(.system(size: 44, weight: .medium))
-                    Text(title)
+                    Text("When an app closes")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    Text(detail)
-                        .font(.body)
+                    Text("Make the matching rule that brings color back:")
+                        .foregroundStyle(.secondary)
+
+                    SetupInstruction(
+                        number: 1,
+                        text: "In Shortcuts, return to the Automation tab and tap +."
+                    )
+                    SetupInstruction(
+                        number: 2,
+                        text: "Search for App, tap App, then choose the same apps as before."
+                    )
+                    SetupInstruction(
+                        number: 3,
+                        text: "Turn off Is Opened and turn on Is Closed."
+                    )
+                    SetupInstruction(
+                        number: 4,
+                        text: "Choose Run Immediately, then tap Next."
+                    )
+                    SetupScreenshot(
+                        imageName: "ShortcutsClosedTrigger",
+                        caption: "For this second rule: Is Closed + Run Immediately.",
+                        cropAlignment: .center
+                    )
+                    SetupInstruction(
+                        number: 5,
+                        text: "Select the installed Buzzkill Off shortcut."
+                    )
+                    Text("You should now have two rules: Buzzkill On for Is Opened, and Buzzkill Off for Is Closed.")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -324,15 +391,11 @@ private struct OnboardingPage: View {
             }
             VStack(spacing: 12) {
                 GuideButton(
-                    title: primaryTitle,
-                    icon: primaryIcon,
-                    action: primaryAction
+                    title: "Open Shortcuts",
+                    icon: "arrow.up.forward.app",
+                    action: openShortcuts
                 )
-                if showContinue {
-                    Button(continueTitle, action: continueAction)
-                        .buttonStyle(.bordered)
-                        .tint(.primary)
-                }
+                GuideSecondaryButton(title: "Finish setup", action: finish)
             }
             .padding(.horizontal, 28)
             .padding(.bottom, 16)
@@ -344,7 +407,7 @@ private struct StepHeader: View {
     let step: Int
 
     var body: some View {
-        Text("STEP \(step) OF 5")
+        Text("STEP \(step) OF 4")
             .font(.caption.weight(.bold))
             .tracking(1)
             .foregroundStyle(.secondary)
@@ -375,12 +438,14 @@ private struct SetupInstruction: View {
 private struct SetupScreenshot: View {
     let imageName: String
     let caption: String
+    let cropAlignment: Alignment
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Image(imageName)
                 .resizable()
-                .scaledToFit()
+                .scaledToFill()
+                .frame(height: 330, alignment: cropAlignment)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -410,6 +475,20 @@ private struct GuideButton: View {
     }
 }
 
+private struct GuideSecondaryButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .buttonStyle(.bordered)
+        .tint(.primary)
+    }
+}
+
 private struct InstallShortcutsPage: View {
     let openedInstallers: Set<BundledShortcut>
     let install: (BundledShortcut) -> Void
@@ -419,10 +498,7 @@ private struct InstallShortcutsPage: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Text("STEP 2 OF 5")
-                        .font(.caption.weight(.bold))
-                        .tracking(1)
-                        .foregroundStyle(.secondary)
+                    StepHeader(step: 1)
                     Image(systemName: "square.and.arrow.down")
                         .font(.system(size: 44, weight: .medium))
                     Text("Install two tiny shortcuts")
@@ -437,7 +513,7 @@ private struct InstallShortcutsPage: View {
                             } label: {
                                 Label(
                                     openedInstallers.contains(shortcut)
-                                        ? "\(shortcut.displayName) opened"
+                                        ? "\(shortcut.displayName) installer opened"
                                         : "Install \(shortcut.displayName)",
                                     systemImage: openedInstallers.contains(shortcut)
                                         ? "checkmark.circle.fill"
@@ -453,14 +529,16 @@ private struct InstallShortcutsPage: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(28)
             }
-            Button("Both are installed", action: continueAction)
-                .frame(maxWidth: .infinity)
-                .buttonStyle(.borderedProminent)
-                .tint(.primary)
-                .foregroundStyle(Color(uiColor: .systemBackground))
-                .disabled(openedInstallers.count < BundledShortcut.allCases.count)
-                .padding(.horizontal, 28)
-                .padding(.bottom, 16)
+            Button(action: continueAction) {
+                Text("Next: Test the shortcuts")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundStyle(Color(uiColor: .systemBackground))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.primary)
+            .disabled(openedInstallers.count < BundledShortcut.allCases.count)
+            .padding(.horizontal, 28)
+            .padding(.bottom, 16)
         }
     }
 }
@@ -468,16 +546,33 @@ private struct InstallShortcutsPage: View {
 private struct TestShortcutsPage: View {
     let phase: ShortcutTestPhase
     let testShortcut: (BundledShortcut) -> Void
+    let restoreColorAfterFailedVisualCheck: () -> Void
+    let openSettings: () -> Void
     let continueAction: () -> Void
 
     var body: some View {
+        Group {
+            if phase == .failed(.filterIsNotGrayscale) {
+                GrayscaleRepairPage(
+                    openSettings: openSettings,
+                    retry: { testShortcut(.grayscaleOn) }
+                )
+            } else {
+                testPage
+            }
+        }
+        .onChange(of: phase) { _, newPhase in
+            if newPhase == .verified {
+                continueAction()
+            }
+        }
+    }
+
+    private var testPage: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Text("STEP 3 OF 5")
-                        .font(.caption.weight(.bold))
-                        .tracking(1)
-                        .foregroundStyle(.secondary)
+                    StepHeader(step: 2)
                     Image(systemName: icon)
                         .font(.system(size: 44, weight: .medium))
                     Text(title)
@@ -485,6 +580,7 @@ private struct TestShortcutsPage: View {
                     Text(detail)
                         .font(.body)
                         .foregroundStyle(.secondary)
+                    ColorTestCard()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(28)
@@ -517,7 +613,7 @@ private struct TestShortcutsPage: View {
         case .running(let shortcut):
             "Testing \(shortcut.displayName)…"
         case .onVerified:
-            "Grayscale works"
+            "Did the colors turn gray?"
         case .verified:
             "Both shortcuts work"
         case .failed:
@@ -532,7 +628,7 @@ private struct TestShortcutsPage: View {
         case .running:
             "Shortcuts is running the test. Buzzkill will reopen automatically when it finishes."
         case .onVerified:
-            "The On shortcut passed. Restore color now to test Buzzkill Off and leave your phone looking normal."
+            "Take as long as you need to check the stripes below. Nothing will advance until you answer."
         case .verified:
             "Grayscale turned on and color came back. Your two shortcuts are installed and configured correctly."
         case .failed(let failure):
@@ -555,11 +651,16 @@ private struct TestShortcutsPage: View {
             }
             .padding()
         case .onVerified:
-            primaryButton("Restore Color", icon: "paintpalette.fill") {
-                testShortcut(.grayscaleOff)
+            VStack(spacing: 12) {
+                primaryButton("Yes, it turned gray — Continue", icon: "checkmark") {
+                    testShortcut(.grayscaleOff)
+                }
+                GuideSecondaryButton(title: "No, I still see color") {
+                    restoreColorAfterFailedVisualCheck()
+                }
             }
         case .verified:
-            primaryButton("Continue", icon: "arrow.right") {
+            primaryButton("Next: Create the open rule", icon: "arrow.right") {
                 continueAction()
             }
         case .failed(let failure):
@@ -615,4 +716,250 @@ private struct TestShortcutsPage: View {
             .grayscaleOff
         }
     }
+}
+
+private struct ColorTestCard: View {
+    private let colors: [Color] = [.pink, .orange, .yellow, .green, .cyan, .blue, .purple]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("COLOR CHECK")
+                .font(.caption.bold())
+                .tracking(1)
+            HStack(spacing: 0) {
+                ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
+                    Rectangle()
+                        .fill(color)
+                }
+            }
+            .frame(height: 74)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            Text("After Buzzkill On runs, every stripe above should look black, white, or gray.")
+                .font(.subheadline)
+        }
+        .padding(18)
+        .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Color check. After Buzzkill On runs, every stripe should look black, white, or gray.")
+    }
+}
+
+private struct GrayscaleRepairPage: View {
+    let openSettings: () -> Void
+    let retry: () -> Void
+    @State private var showingVisualGuide = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    StepHeader(step: 2)
+                    Image(systemName: "paintpalette.fill")
+                        .font(.system(size: 44, weight: .medium))
+                    Text("Still seeing color?")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text("Buzzkill restored normal color before bringing you here. Choose Grayscale once, then retry the visual test.")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("Five taps, fully pictured", systemImage: "rectangle.stack.fill")
+                            .font(.headline)
+                        Text("Open the visual guide and swipe through one Apple-style screen for every tap.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Button {
+                            showingVisualGuide = true
+                        } label: {
+                            Label("View tap-by-tap guide", systemImage: "hand.tap.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.primary)
+                    }
+                    .padding(18)
+                    .background(
+                        Color.primary.opacity(0.06),
+                        in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    )
+                    Text("Try Accessibility below. If iOS lands on Buzzkill’s settings, tap “Settings” in the top-left to return to the main Settings screen, then follow the pictures.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(28)
+            }
+            VStack(spacing: 12) {
+                GuideButton(
+                    title: "Open Accessibility",
+                    icon: "gear",
+                    action: openSettings
+                )
+                GuideSecondaryButton(title: "Retry Buzzkill On", action: retry)
+            }
+            .padding(.horizontal, 28)
+            .padding(.bottom, 16)
+        }
+        .fullScreenCover(isPresented: $showingVisualGuide) {
+            GrayscaleVisualGuide()
+        }
+    }
+}
+
+private struct GrayscaleVisualGuide: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedStep = 0
+
+    private let steps = [
+        GrayscaleTutorialStep(
+            number: 1,
+            title: "Tap Accessibility",
+            caption: "In Settings, tap Accessibility.",
+            imageName: "GrayscaleGuideSettings",
+            cropAlignment: .center
+        ),
+        GrayscaleTutorialStep(
+            number: 2,
+            title: "Tap Display & Text Size",
+            caption: "Under Vision, tap Display & Text Size.",
+            imageName: "GrayscaleGuideAccessibility",
+            cropAlignment: .center
+        ),
+        GrayscaleTutorialStep(
+            number: 3,
+            title: "Tap Color Filters",
+            caption: "Scroll toward the bottom, then tap Color Filters.",
+            imageName: "GrayscaleGuideDisplayText",
+            cropAlignment: .bottom
+        ),
+        GrayscaleTutorialStep(
+            number: 4,
+            title: "Turn on Color Filters",
+            caption: "Turn on the Color Filters switch at the top.",
+            imageName: "GrayscaleGuideEnableFilters",
+            cropAlignment: .center
+        ),
+        GrayscaleTutorialStep(
+            number: 5,
+            title: "Tap Grayscale",
+            caption: "Select Grayscale, then return to Buzzkill and retry.",
+            imageName: "GrayscaleGuideChooseGrayscale",
+            cropAlignment: .top
+        )
+    ]
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                TabView(selection: $selectedStep) {
+                    ForEach(steps) { step in
+                        tutorialPage(step)
+                            .tag(step.number - 1)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                stepIndicator
+                navigationButtons
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 18)
+            .background(Color(uiColor: .systemGroupedBackground))
+            .navigationTitle("Pick Grayscale")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close", action: dismiss.callAsFunction)
+                }
+            }
+        }
+    }
+
+    private func tutorialPage(_ step: GrayscaleTutorialStep) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("TAP \(step.number) OF \(steps.count)")
+                    .font(.caption.bold())
+                    .tracking(1)
+                    .foregroundStyle(.secondary)
+                Text(step.title)
+                    .font(.system(.title, design: .rounded, weight: .bold))
+                Image(step.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 390, alignment: step.cropAlignment)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .stroke(Color.primary.opacity(0.1))
+                    )
+                    .shadow(color: .black.opacity(0.08), radius: 12, y: 5)
+                    .accessibilityHidden(true)
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "hand.tap.fill")
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                    Text(step.caption)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 4)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 12)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Tap \(step.number) of \(steps.count). \(step.title). \(step.caption)")
+    }
+
+    private var stepIndicator: some View {
+        HStack(spacing: 7) {
+            ForEach(steps) { step in
+                Capsule()
+                    .fill(
+                        step.number - 1 == selectedStep
+                            ? Color.primary
+                            : Color.secondary.opacity(0.25)
+                    )
+                    .frame(
+                        width: step.number - 1 == selectedStep ? 28 : 8,
+                        height: 8
+                    )
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: selectedStep)
+        .accessibilityLabel("Tutorial page \(selectedStep + 1) of \(steps.count)")
+    }
+
+    private var navigationButtons: some View {
+        HStack {
+            if selectedStep > 0 {
+                Button("Back") {
+                    selectedStep -= 1
+                }
+                .buttonStyle(.bordered)
+                .tint(.primary)
+            }
+            Spacer()
+            Button(selectedStep == steps.count - 1 ? "Done" : "Next") {
+                if selectedStep == steps.count - 1 {
+                    dismiss()
+                } else {
+                    selectedStep += 1
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.primary)
+            .foregroundStyle(Color(uiColor: .systemBackground))
+        }
+    }
+}
+
+private struct GrayscaleTutorialStep: Identifiable {
+    let number: Int
+    let title: String
+    let caption: String
+    let imageName: String
+    let cropAlignment: Alignment
+
+    var id: Int { number }
 }
