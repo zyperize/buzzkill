@@ -7,6 +7,7 @@ This draft matches the current binary and is mirrored in the canonical `metadata
 - **Name:** Buzzkill
 - **Subtitle:** Make scrolling less colorful
 - **Category:** Productivity
+- **Copyright:** 2026 Marcos Javier Klingler
 - **Privacy policy URL:** https://zyperize.github.io/buzzkill/privacy.html
 - **Support URL:** https://zyperize.github.io/buzzkill/support.html
 
