@@ -6,6 +6,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("didCompleteOnboarding") private var didCompleteOnboarding = false
     @State private var showingSetupGuide = false
+    @State private var showingRemovalGuide = false
     @State private var showingOnboarding = false
     @State private var shouldOpenSetupAfterOnboarding = false
 
@@ -37,6 +38,9 @@ struct ContentView: View {
                         viewModel.didFinishAutomation = true
                     }
                 )
+            }
+            .sheet(isPresented: $showingRemovalGuide) {
+                RemovalGuide()
             }
             .fullScreenCover(
                 isPresented: $showingOnboarding,
@@ -128,6 +132,10 @@ struct ContentView: View {
                 Text("This resets Buzzkill’s checklist. It does not delete your shortcuts or automations.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            GuideSecondaryButton(title: "How to remove Buzzkill") {
+                showingRemovalGuide = true
             }
         }
         .padding(20)
@@ -412,6 +420,84 @@ private struct CloseAutomationPage: View {
             .padding(.horizontal, 28)
             .padding(.bottom, 16)
         }
+    }
+}
+
+private struct RemovalGuide: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    Text("REMOVE BUZZKILL")
+                        .font(.caption.weight(.bold))
+                        .tracking(1)
+                        .foregroundStyle(.secondary)
+
+                    Text("How to remove Buzzkill")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+
+                    Text("Buzzkill does not run in the background or manage your apps. Removing it means deleting the two Personal Automations you created in Apple Shortcuts.")
+                        .foregroundStyle(.secondary)
+
+                    RemovalStep(
+                        number: 1,
+                        title: "Open Shortcuts",
+                        detail: "Open Apple’s Shortcuts app and tap Automation at the bottom."
+                    )
+                    RemovalStep(
+                        number: 2,
+                        title: "Delete the app automations",
+                        detail: "Find the Buzzkill rules for Is Opened and Is Closed. Swipe left on each rule and tap Delete, or open the rule and choose Delete Automation."
+                    )
+                    RemovalStep(
+                        number: 3,
+                        title: "Optionally delete the shortcuts",
+                        detail: "On the Shortcuts tab, swipe left on Buzzkill On and Buzzkill Off and tap Delete if you no longer want to keep them."
+                    )
+
+                    Text("Deleting the automations stops the grayscale changes. You do not need to remove Buzzkill from Settings.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(28)
+            }
+            .navigationTitle("Remove Buzzkill")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+private struct RemovalStep: View {
+    let number: Int
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text("\(number)")
+                .font(.subheadline.bold())
+                .frame(width: 28, height: 28)
+                .background(Color.primary)
+                .foregroundStyle(Color(uiColor: .systemBackground))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(detail)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Step \(number). \(title). \(detail)")
     }
 }
 

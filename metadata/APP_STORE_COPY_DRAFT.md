@@ -4,7 +4,7 @@ This draft matches the current binary and is mirrored in the canonical `metadata
 
 ## App information — English (U.S.)
 
-- **Name:** Buzzkill
+- **Name:** Buzzkill: Grayscale
 - **Subtitle:** Make scrolling less colorful
 - **Category:** Productivity
 - **Copyright:** 2026 Marcos Javier Klingler
@@ -25,7 +25,7 @@ You stay in control: apps remain available, and the automation is created and ru
 
 ### Keywords
 
-grayscale,focus,shortcuts,digital wellbeing,distraction,screen time,attention,habit,monochrome,calm
+focus,shortcuts,digital wellbeing,distraction,screen time,attention,habit,monochrome,calm
 
 ### Promotional text
 
