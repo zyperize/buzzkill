@@ -878,7 +878,7 @@ private struct GrayscaleRepairPage: View {
                         Color.primary.opacity(0.06),
                         in: RoundedRectangle(cornerRadius: 22, style: .continuous)
                     )
-                    Text("Try Accessibility below. If iOS lands on Buzzkill’s settings, tap “Settings” in the top-left to return to the main Settings screen, then follow the pictures.")
+                    Text("Try Accessibility below. If iOS opens Buzzkill’s settings page first, tap “Settings” in the top-left to return to the main Settings screen, then follow the pictures.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

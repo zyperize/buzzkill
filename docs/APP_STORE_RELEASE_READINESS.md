@@ -24,7 +24,7 @@ _Checked July 31, 2026._
   - Every setup page after the first must expose Back; every completed action must expose a clearly labeled Next or Finish action.
   - **Open Accessibility** must be tested on the shipping iOS version; if its private route fails, the main-Settings fallback and pictured guide must remain usable.
 - [ ] Resolve the lock/unlock bypass before release: locking a selected app can fire its close rule, while unlocking into that still-frontmost app may not fire its open rule. Validate the proposed app-scheduled Focus strategy on a physical iPhone.
-- [ ] Before App Store submission, review the onboarding's undocumented `App-Prefs:` Accessibility-root link and main-Settings fallback. Apple provides no public Accessibility URL and may reject private URL schemes.
+- [x] Accessibility setup uses the public app Settings URL and a pictured manual path to Accessibility → Display & Text Size → Color Filters.
 - [x] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (local profile is configured; private key is kept outside the repo).
 - [x] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
 - [x] GitHub Pages privacy/support URLs verified anonymously and entered in App Store Connect.

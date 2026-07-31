@@ -59,13 +59,17 @@ final class AppViewModel: ObservableObject {
     }
 
     func openSystemSettings() {
-        let destinations = [
-            "App-Prefs:root=ACCESSIBILITY",
-            "prefs:root=ACCESSIBILITY",
-            "App-Prefs:",
-            "prefs:"
-        ]
-        openFirstAvailableSettingsDestination(destinations)
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            statusMessage = "Open Settings → Accessibility → Display & Text Size → Color Filters."
+            return
+        }
+
+        UIApplication.shared.open(url) { [weak self] opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                self?.statusMessage = "Open Settings → Accessibility → Display & Text Size → Color Filters."
+            }
+        }
     }
 
     func installShortcut(_ shortcut: BundledShortcut) {
@@ -82,27 +86,6 @@ final class AppViewModel: ObservableObject {
                 } else {
                     self.statusMessage = "Couldn’t open \(shortcut.displayName). Try reinstalling Buzzkill."
                 }
-            }
-        }
-    }
-
-    private func openFirstAvailableSettingsDestination(
-        _ destinations: [String],
-        index: Int = 0
-    ) {
-        guard destinations.indices.contains(index),
-              let url = URL(string: destinations[index]) else {
-            statusMessage = "Open Settings → Accessibility → Display & Text Size → Color Filters."
-            return
-        }
-
-        UIApplication.shared.open(url) { [weak self] opened in
-            guard !opened else { return }
-            Task { @MainActor in
-                self?.openFirstAvailableSettingsDestination(
-                    destinations,
-                    index: index + 1
-                )
             }
         }
     }
