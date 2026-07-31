@@ -141,12 +141,21 @@ struct ContentView: View {
     }
 
     private var privacyNote: some View {
-        Label(
-            "No account, VPN, or screen recording. Apple runs the automations locally.",
-            systemImage: "lock.shield.fill"
-        )
-        .font(.footnote)
-        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 10) {
+            Label(
+                "No account, VPN, or screen recording. Apple runs the automations locally.",
+                systemImage: "lock.shield.fill"
+            )
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+
+            HStack(spacing: 16) {
+                Link("Privacy Policy", destination: URL(string: "https://zyperize.github.io/buzzkill/privacy.html")!)
+                Link("Support", destination: URL(string: "https://zyperize.github.io/buzzkill/support.html")!)
+            }
+            .font(.footnote.weight(.semibold))
+            .tint(.primary)
+        }
         .padding(.horizontal, 4)
     }
 
@@ -384,6 +393,9 @@ private struct CloseAutomationPage: View {
                     )
                     Text("You should now have two rules: Buzzkill On for Is Opened, and Buzzkill Off for Is Closed.")
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("One iOS limitation to know: if you lock the phone while a selected app is frontmost, iOS can run the close rule without running the open rule again when you unlock into that same app. If that happens, briefly switch away and reopen the app so the open rule runs again.")
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

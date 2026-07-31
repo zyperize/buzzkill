@@ -1,12 +1,12 @@
 # Buzzkill — App Store release readiness
 
-_Checked July 30, 2026._
+_Checked July 31, 2026._
 
 ## Complete in the project
 
-- [x] Re-run the iOS Simulator build and launch after the grayscale-automation update.
+- [ ] Re-run the iOS build and launch after the release changes; this environment currently lacks an available CoreSimulator runtime.
 - [x] Bundle identifier is `com.buzzkill.app`.
-- [x] Version is `0.1.0` (`1`).
+- [x] Source version is `1.0` (`1`); the currently attached ASC build predates this change and must be rebuilt before submission.
 - [x] Privacy manifest is bundled. It declares local-only `UserDefaults` storage with Apple’s `CA92.1` reason.
 - [x] No analytics, advertising, tracking, sign-in, payments, networking, or ATT code is present in the iOS target.
 - [x] The privacy-policy draft now describes the actual iOS behavior: local setup storage only; no app blocking, usage tracking, or data uploads.
@@ -27,12 +27,12 @@ _Checked July 30, 2026._
 - [ ] Before App Store submission, review the onboarding's undocumented `App-Prefs:` Accessibility-root link and main-Settings fallback. Apple provides no public Accessibility URL and may reject private URL schemes.
 - [x] Create or sign into a dedicated App Store Connect CLI profile for Buzzkill (local profile is configured; private key is kept outside the repo).
 - [x] Create the Buzzkill app record in App Store Connect after the bundle ID exists.
-- [ ] After the repository is public and GitHub Pages has deployed, verify the privacy/support pages anonymously and then enter the Pages URLs in App Store Connect.
+- [x] GitHub Pages privacy/support URLs verified anonymously and entered in App Store Connect.
 - [ ] Set App Privacy in App Store Connect to **Data Not Collected**, provided the shipping binary remains local-only.
-- [x] Upload six validated 6.5-inch iPhone screenshots covering Color Filters and Personal Automation setup. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
-- [ ] Add App Review notes explaining: “Buzzkill guides users through a local Apple Shortcuts setup. It does not block apps, monitor use, or change Color Filters directly. The user selects apps and completes any automation in Shortcuts.” (Requires a reviewer contact phone number.)
+- [x] Upload six validated iPhone screenshots covering the onboarding and the color-to-grayscale concept. Do not claim that Buzzkill itself applies grayscale or auto-creates automations.
+- [x] Add App Review notes explaining: “Buzzkill guides users through a local Apple Shortcuts setup. It does not block apps, monitor use, or change Color Filters directly. The user selects apps and completes any automation in Shortcuts.”
 - [ ] Archive, upload to TestFlight, and test this flow on a physical iPhone before submission.
 
 ## Current release blocker
 
-The App Store Connect record still needs App Privacy confirmation, app availability, and App Review contact details. The local source also still needs physical-device Shortcuts verification, signing, and a shipping build/test pass.
+The local source still needs physical-device Shortcuts verification, signing, and a shipping build/test pass. iOS does not expose a public unlock automation trigger, so the setup guide documents the lock/unlock limitation and the reliable recovery step: briefly switch away and reopen the selected app.

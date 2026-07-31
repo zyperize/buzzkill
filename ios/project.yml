@@ -9,7 +9,7 @@ settings:
     CODE_SIGN_ENTITLEMENTS: Buzzkill/Buzzkill.entitlements
     SWIFT_VERSION: 6.0
     CURRENT_PROJECT_VERSION: 1
-    MARKETING_VERSION: 0.1.0
+    MARKETING_VERSION: 1.0
     DEVELOPMENT_TEAM: 4T7KSYZ4F9
 targets:
   Buzzkill:

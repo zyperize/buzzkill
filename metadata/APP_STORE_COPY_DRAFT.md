@@ -10,13 +10,13 @@ This draft matches the current binary and is mirrored in the canonical `metadata
 - **Privacy policy URL:** https://zyperize.github.io/buzzkill/privacy.html
 - **Support URL:** https://zyperize.github.io/buzzkill/support.html
 
-## Version 0.1.0 — English (U.S.)
+## Version 1.0 — English (U.S.)
 
 ### Description
 
 Buzzkill helps you make selected apps feel less stimulating without blocking them or setting time limits.
 
-Choose apps from Apple’s private system picker, then Buzzkill walks you through a single Apple Shortcuts automation. When a selected app opens, your iPhone can switch to the grayscale Color Filter; when you leave it, color returns.
+Buzzkill walks you through installing two local Apple Shortcuts and creating the matching open/close Personal Automations. When a selected app opens, your iPhone can switch to the grayscale Color Filter; when you leave it, color returns.
 
 Everything stays on your iPhone. Buzzkill has no account, ads, analytics, app-usage tracking, or background uploads.
 
@@ -24,7 +24,7 @@ You stay in control: apps remain available, and the automation is created and ru
 
 ### Keywords
 
-grayscale,focus,shortcuts,digital wellbeing,screen time,distraction
+grayscale,focus,shortcuts,digital wellbeing,distraction,screen time,attention,habit,monochrome,calm
 
 ### Promotional text
 
@@ -36,26 +36,22 @@ First release.
 
 ## App Review notes
 
-### 1. Physical-device screen recording
-
-REQUIRED BEFORE SUBMISSION: add a private, viewable URL to a recording captured on an iPhone. It should show: launch Buzzkill, choose apps in Apple’s picker, open the Shortcuts setup, and demonstrate the created automation.
-
-### 2. App purpose
+### 1. App purpose
 
 Buzzkill is a local setup companion for people who want selected apps to appear less stimulating. It guides the user through Apple’s built-in grayscale Color Filter and a local Personal Automation in Apple Shortcuts. The app does not block apps or impose usage limits.
 
-### 3. Reviewer access
+### 2. Reviewer access
 
-No account, login, purchase, or test credentials are required. The reviewer can use the app immediately. To test the installed-app picker, grant the Family Controls authorization requested by the app. To test grayscale behavior, configure Color Filters to Grayscale and create the Apple Shortcuts automation described in-app.
+No account, login, purchase, or test credentials are required. The reviewer can use the app immediately. To test grayscale behavior, install the two bundled shortcuts and create the Apple Shortcuts automations described in-app.
 
-### 4. External services
+### 3. External services
 
-No backend, analytics, advertising, authentication, payment, AI, cloud storage, or other third-party services are used. The app opens Apple’s installed-app picker and Apple Shortcuts, both of which are system services.
+No backend, analytics, advertising, authentication, payment, AI, cloud storage, or other third-party services are used. The app opens Apple Shortcuts, a system service.
 
-### 5. Regional differences
+### 4. Regional differences
 
 The app behaves consistently in all regions where Apple makes Family Controls and Shortcuts available. The underlying Apple system UI may vary by iOS version.
 
-### 6. Regulated industry
+### 5. Regulated industry
 
 Not applicable. Buzzkill is not a medical, financial, legal, gambling, or other regulated-industry app.
