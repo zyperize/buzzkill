@@ -1,47 +1,27 @@
 # Buzzkill — Privacy Policy
 
-_Last updated: July 26, 2026._
+The canonical, published privacy policy for Buzzkill lives at:
 
-## Summary
+**https://zyperize.github.io/buzzkill/privacy.html**
 
-Buzzkill does not collect, transmit, store on a remote server, or share personal data. Everything you configure stays on your device.
+That URL is the one filed in App Store Connect. It is the single source of
+truth, and it is served from [`docs/site/privacy.html`](site/privacy.html).
 
-## What Buzzkill stores on your device
+This file used to hold a second copy of the policy. It is now a pointer instead,
+so that there is never more than one published version of the policy in
+circulation. Edit `docs/site/privacy.html` to change the policy.
 
-- Whether each bundled shortcut installer has been opened.
-- Whether the local shortcut test passed.
-- Whether you marked the automation setup as finished.
+## Short version
 
-These values are stored only in the operating system’s local app storage (`UserDefaults`). They are not uploaded by Buzzkill.
+Buzzkill does not collect, transmit, store on a remote server, or share personal
+data. It stores local setup state (whether each bundled shortcut installer was
+opened, whether the local shortcut test passed, whether setup was marked
+finished) in `UserDefaults` on the device, and reads whether the system
+grayscale setting is enabled so it can show setup status. Deleting the app
+removes all of it.
 
-## What Buzzkill reads from the operating system
+No analytics, crash reporting, advertising, third-party identifiers, background
+uploads, app blocking, usage monitoring, screen-content access, location,
+microphone, camera, or contacts access.
 
-### iOS
-
-- **Accessibility Color Filters status** — Buzzkill reads whether the system grayscale setting is currently enabled so it can show setup status. It cannot change that protected setting itself.
-
-## What Buzzkill does NOT do
-
-- No analytics SDKs.
-- No crash reporting SDKs.
-- No advertising SDKs.
-- No third-party identifiers.
-- No background uploads.
-- No app blocking, shielding, time limits, or usage monitoring.
-- No reading of screen content or app-usage history.
-- No reading of message, browser, or social content.
-- No location.
-- No microphone, camera, or contacts access.
-
-## Children's privacy
-
-Buzzkill is not directed to children and does not knowingly collect data from children.
-
-## Changes to this policy
-
-If we change anything material here, we'll update the "Last updated"
-date above and call it out in the next app release notes.
-
-## Contact
-
-For privacy questions or support, use the public [Buzzkill support issues](https://github.com/zyperize/buzzkill/issues). Please do not include private data in a report.
+See also the [terms of use](site/terms.html).

@@ -12,7 +12,6 @@ Buzzkill is a free iPhone app that guides you through a local Apple Shortcuts se
 
 - `ios/` — SwiftUI iPhone app and the onboarding flow for the local Shortcuts setup.
 - `android/` — separate Kotlin experiment for Android grayscale control; it requires privileged device access and is not the App Store product.
-- `apps/web/` — early web prototype and app area.
 - `distribution/` — App Store metadata and branded onboarding screenshots.
 - `docs/` — product contract, setup guide, privacy policy, and release notes.
 - `scripts/` — local development helpers.
@@ -43,7 +42,7 @@ Buzzkill is deliberately a setup guide, not an enforcement tool. The user select
 
 ## Privacy
 
-The iOS app is designed to work locally with no sign-in, analytics, advertising, tracking, or remote data collection. Read the [privacy policy](docs/PRIVACY.md) and the [App Store release checklist](docs/APP_STORE_RELEASE_READINESS.md).
+The iOS app is designed to work locally with no sign-in, analytics, advertising, tracking, or remote data collection. Read the [privacy policy](https://zyperize.github.io/buzzkill/privacy.html), the [terms of use](https://zyperize.github.io/buzzkill/terms.html), and the [App Store release checklist](docs/APP_STORE_RELEASE_READINESS.md).
 
 ## Verification
 
