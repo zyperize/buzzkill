@@ -8,6 +8,7 @@ struct OnboardingView: View {
     @AppStorage("onboarding.socialMediaTime") private var socialMediaTime = ""
     @AppStorage("onboarding.primaryPull") private var primaryPull = ""
     @State private var page: OnboardingPage
+    @State private var showingResearch = false
 
     init(
         canClose: Bool,
@@ -35,6 +36,9 @@ struct OnboardingView: View {
             footer
         }
         .background(Color(uiColor: .systemGroupedBackground))
+        .sheet(isPresented: $showingResearch) {
+            ResearchView()
+        }
     }
 
     private var header: some View {
@@ -74,8 +78,8 @@ struct OnboardingView: View {
                 imageName: "OnboardingColorHook",
                 eyebrow: "WHY GRAYSCALE?",
                 title: "Color is part of the hook",
-                detail: "Colorful, reward-linked cues can pull attention. A peer-reviewed experiment found that grayscale reduced reported smartphone use and made phones feel less attractive.",
-                researchURL: URL(string: "https://doi.org/10.1016/j.chbr.2023.100294")
+                detail: "Colorful, reward-linked cues can pull attention. In several peer-reviewed experiments, switching a phone to grayscale lowered daily screen time.",
+                onShowResearch: { showingResearch = true }
             )
         case .choice:
             OnboardingStoryPage(
@@ -177,7 +181,7 @@ private struct OnboardingStoryPage: View {
     let eyebrow: String
     let title: String
     let detail: String
-    var researchURL: URL?
+    var onShowResearch: (() -> Void)?
 
     var body: some View {
         ScrollView {
@@ -203,13 +207,13 @@ private struct OnboardingStoryPage: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                if let researchURL {
-                    Link(destination: researchURL) {
-                        Label("Read the peer-reviewed study", systemImage: "arrow.up.right")
+                if let onShowResearch {
+                    Button(action: onShowResearch) {
+                        Label("See the research", systemImage: "arrow.up.right")
                             .font(.footnote.weight(.semibold))
                     }
                     .tint(.primary)
-                    .accessibilityHint("Opens the study in your browser")
+                    .accessibilityHint("Opens a list of the published studies")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

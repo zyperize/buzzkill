@@ -8,6 +8,7 @@ struct ContentView: View {
     @State private var showingSetupGuide = false
     @State private var showingRemovalGuide = false
     @State private var showingOnboarding = false
+    @State private var showingResearch = false
     @State private var shouldOpenSetupAfterOnboarding = false
 
     var body: some View {
@@ -17,6 +18,7 @@ struct ContentView: View {
                     hero
                     setupCard
                     aboutButton
+                    researchButton
                     privacyNote
                 }
                 .padding(20)
@@ -41,6 +43,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingRemovalGuide) {
                 RemovalGuide()
+            }
+            .sheet(isPresented: $showingResearch) {
+                ResearchView()
             }
             .fullScreenCover(
                 isPresented: $showingOnboarding,
@@ -145,6 +150,12 @@ struct ContentView: View {
     private var aboutButton: some View {
         GuideSecondaryButton(title: "Why Buzzkill works") {
             showingOnboarding = true
+        }
+    }
+
+    private var researchButton: some View {
+        GuideSecondaryButton(title: "The research behind Buzzkill") {
+            showingResearch = true
         }
     }
 

@@ -21,6 +21,9 @@ targets:
         CFBundleDisplayName: Buzzkill
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Buzzkill uses no encryption beyond what Apple exempts. Without this
+        # key every App Store Connect upload re-prompts for export compliance.
+        ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
           - CFBundleTypeRole: Editor
             CFBundleURLName: com.buzzkill.app
